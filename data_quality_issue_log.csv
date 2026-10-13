@@ -1,0 +1,10 @@
+ID,Dataset,Issue,Quantity,Classification,Treatment,Impact
+DQ-01,diners,Age below plausible account-holder age,"1 diner (D1052, age 9)",Invalid,Excluded from the classifier and the app's age input (under-18 policy). Retained for clustering & baskets (age not used there). No imputation.,Classifier trained on 460 adult diners
+DQ-02,diners,"Age 14–17, below the app's 18–70 age input",19 diners,Out of scope (minor),Excluded from the classifier and the app's age input under the 18+ policy. Not deleted: retained for segmentation & baskets. No age capping.,Not scored; shown as 'not scored — under 18' in the dashboard
+DQ-03,diners,total_spend ≈ orders/month × AOV (ratio 0.85–1.15),All 480 diners,Valid (semantic note),"Unchanged. Interpreted as ~1 month of spend; customer value reported as monthly run-rate, not lifetime value.",Interpretation only
+DQ-04,diners,Statistical outliers (IQR rule),"11 values (recency, total spend)",Outlier — genuine,Retained: within plausible business ranges and consistent with each diner's other fields.,None
+DQ-05,diners,"Dashboard input ranges exceed training ranges (e.g. recency ≤60 vs max 34; spend ≤20,000 vs max 1,490)",4 inputs,Application constraint,Dashboard shows an extrapolation warning when inputs fall outside the training range.,Dashboard governance
+DQ-06,orders,"orders.csv is a basket sample, not the full log",2–6 baskets per diner,Valid (scope note),Used for basket composition only; diner profile metrics not recomputed from it.,Interpretation only
+DQ-07,orders,Gaps in order_id sequence,8 IDs,Informational,No action — gaps do not break any join (likely cancelled/voided orders).,None
+DQ-08,orders,Single-item baskets,140 baskets,Valid,Retained — count towards item support; cannot form pair rules by construction.,None
+DQ-09,both,"Duplicates at all three grains, orphans, multi-diner orders, missing values, ID formats",0 everywhere,Valid,Checks codified in pipeline; no rows removed.,None
