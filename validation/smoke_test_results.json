@@ -1,0 +1,488 @@
+{
+ "summary": {
+  "PASS": 96,
+  "FAIL": 0
+ },
+ "checks": [
+  {
+   "check": "App starts without exceptions",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Navigation lists the 9 pages in order",
+   "result": "PASS",
+   "detail": "['Executive Overview', 'Customer Segmentation', 'Basket Intelligence', 'Retention & Churn', 'Retention Economics', 'Diner Intelligence', 'What-If Simulator', 'Recommendations', 'Governance & Data Quality']"
+  },
+  {
+   "check": "Sidebar status card rendered",
+   "result": "PASS",
+   "detail": ""
+  },
+  {
+   "check": "Page renders with expected content: Executive Overview",
+   "result": "PASS",
+   "detail": "exceptions=[] charts=6 (≥6) tables=0 (≥0) marker='Revenue Concentration Curve' found=True"
+  },
+  {
+   "check": "Page renders with expected content: Customer Segmentation",
+   "result": "PASS",
+   "detail": "exceptions=[] charts=11 (≥10) tables=2 (≥2) marker='Who are QuickBite' found=True"
+  },
+  {
+   "check": "Page renders with expected content: Basket Intelligence",
+   "result": "PASS",
+   "detail": "exceptions=[] charts=4 (≥4) tables=3 (≥3) marker='Basket opportunity matrix' found=True"
+  },
+  {
+   "check": "Page renders with expected content: Retention & Churn",
+   "result": "PASS",
+   "detail": "exceptions=[] charts=10 (≥10) tables=2 (≥2) marker='At-risk watch-list' found=True"
+  },
+  {
+   "check": "Page renders with expected content: Retention Economics",
+   "result": "PASS",
+   "detail": "exceptions=[] charts=3 (≥3) tables=1 (≥1) marker='Target list' found=True"
+  },
+  {
+   "check": "Page renders with expected content: Diner Intelligence",
+   "result": "PASS",
+   "detail": "exceptions=[] charts=1 (≥1) tables=0 (≥0) marker='Recommended items' found=True"
+  },
+  {
+   "check": "Page renders with expected content: What-If Simulator",
+   "result": "PASS",
+   "detail": "exceptions=[] charts=2 (≥2) tables=1 (≥1) marker='Standard scenario library' found=True"
+  },
+  {
+   "check": "Page renders with expected content: Recommendations",
+   "result": "PASS",
+   "detail": "exceptions=[] charts=1 (≥1) tables=3 (≥3) marker='30-day operating plan' found=True"
+  },
+  {
+   "check": "Page renders with expected content: Governance & Data Quality",
+   "result": "PASS",
+   "detail": "exceptions=[] charts=3 (≥3) tables=9 (≥8) marker='Live artifact checks' found=True"
+  },
+  {
+   "check": "Every chart uses the registered QuantFin template with transparent backgrounds (no default/white plots)",
+   "result": "PASS",
+   "detail": "41 charts"
+  },
+  {
+   "check": "Segment colours and marker symbols identical on every chart",
+   "result": "PASS",
+   "detail": "80 traces checked"
+  },
+  {
+   "check": "Risk-tier colours follow teal / slate / amber / coral",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Segmentation distribution selector — all 7 features",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Basket segment selector — all 3 segments",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Watch-list with no segment selected → empty table, no crash",
+   "result": "PASS",
+   "detail": "rows=[0]"
+  },
+  {
+   "check": "Economics with no segment in scope → guidance message, no crash",
+   "result": "PASS",
+   "detail": ""
+  },
+  {
+   "check": "Economics with a single low-value segment (few/no profitable targets)",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Retention Economics: ec_cost = 0.0",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Retention Economics: ec_cost = 200.0",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Retention Economics: ec_margin = 0.05",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Retention Economics: ec_margin = 0.6",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Retention Economics: ec_su = 0.0",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Retention Economics: ec_su = 0.5",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Retention Economics: ec_sl = 0.0",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Retention Economics: ec_sl = 0.5",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Retention Economics: ec_h = 1",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Retention Economics: ec_h = 12",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Retention Economics: probability cut-off slider = 0.05",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Retention Economics: probability cut-off slider = 1.0",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Diner input orders_per_month = 1: segment, probability and recommendations match the model",
+   "result": "PASS",
+   "detail": "model Premium Foodies 0.3560; shown 36"
+  },
+  {
+   "check": "Diner input orders_per_month = 20: segment, probability and recommendations match the model",
+   "result": "PASS",
+   "detail": "model Budget Students 0.9727; shown 97"
+  },
+  {
+   "check": "Diner input avg_order_value = 15.0: segment, probability and recommendations match the model",
+   "result": "PASS",
+   "detail": "model Premium Foodies 0.8632; shown 86"
+  },
+  {
+   "check": "Diner input avg_order_value = 250.0: segment, probability and recommendations match the model",
+   "result": "PASS",
+   "detail": "model Family Feasters 0.2731; shown 27"
+  },
+  {
+   "check": "Diner input avg_items_per_order = 1: segment, probability and recommendations match the model",
+   "result": "PASS",
+   "detail": "model Premium Foodies 0.6502; shown 65"
+  },
+  {
+   "check": "Diner input avg_items_per_order = 10: segment, probability and recommendations match the model",
+   "result": "PASS",
+   "detail": "model Family Feasters 0.8878; shown 89"
+  },
+  {
+   "check": "Diner input days_since_last_order = 0: segment, probability and recommendations match the model",
+   "result": "PASS",
+   "detail": "model Premium Foodies 0.9616; shown 96"
+  },
+  {
+   "check": "Diner input days_since_last_order = 60: segment, probability and recommendations match the model",
+   "result": "PASS",
+   "detail": "model Family Feasters 0.0000; shown 0"
+  },
+  {
+   "check": "Diner input discount_rate = 0.0: segment, probability and recommendations match the model",
+   "result": "PASS",
+   "detail": "model Premium Foodies 0.5219; shown 52"
+  },
+  {
+   "check": "Diner input discount_rate = 1.0: segment, probability and recommendations match the model",
+   "result": "PASS",
+   "detail": "model Budget Students 0.9495; shown 95"
+  },
+  {
+   "check": "Diner input age = 18: segment, probability and recommendations match the model",
+   "result": "PASS",
+   "detail": "model Premium Foodies 0.7126; shown 71"
+  },
+  {
+   "check": "Diner input age = 70: segment, probability and recommendations match the model",
+   "result": "PASS",
+   "detail": "model Premium Foodies 0.7471; shown 75"
+  },
+  {
+   "check": "Diner input total_spend = 50.0",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Diner input total_spend = 20000.0",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Diner preset 'App default (typical diner)'",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Diner preset 'Typical Premium Foodie'",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Diner preset 'Typical Family Feaster'",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Diner preset 'Typical Budget Student'",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Diner preset 'Lapsed Family Feaster'",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Diner preset 'Uncertain Premium Foodie (coin-flip)'",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Diner preset 'Look up an existing diner…'",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "Batch scoring: example file (11 rows, 2 under-18 flagged, 9 scored)",
+   "result": "PASS",
+   "detail": "{'Scored': 9, 'Not scored — under 18 (18+ policy)': 2}"
+  },
+  {
+   "check": "Download buttons present (template + scored file)",
+   "result": "PASS",
+   "detail": "2"
+  },
+  {
+   "check": "Batch scoring: missing columns → clear error message",
+   "result": "PASS",
+   "detail": "Missing required columns: orders_per_month, avg_order_value, avg_items_per_order, days_since_last_order, discount_rate, total_spend"
+  },
+  {
+   "check": "Batch scoring: non-numeric value → row flagged, not scored",
+   "result": "PASS",
+   "detail": "Not scored — missing / non-numeric value"
+  },
+  {
+   "check": "Batch scoring: empty file → no crash, zero rows",
+   "result": "PASS",
+   "detail": ""
+  },
+  {
+   "check": "What-If template 'Custom': before / after / change cards",
+   "result": "PASS",
+   "detail": "cards=3"
+  },
+  {
+   "check": "What-If template 'A · Retention intervention': before / after / change cards",
+   "result": "PASS",
+   "detail": "cards=3"
+  },
+  {
+   "check": "What-If template 'B · Discount strategy': before / after / change cards",
+   "result": "PASS",
+   "detail": "cards=3"
+  },
+  {
+   "check": "What-If template 'C · Higher engagement': before / after / change cards",
+   "result": "PASS",
+   "detail": "cards=3"
+  },
+  {
+   "check": "What-If template 'D · Premium behaviour': before / after / change cards",
+   "result": "PASS",
+   "detail": "cards=3"
+  },
+  {
+   "check": "What-If template 'E · Recovery': before / after / change cards",
+   "result": "PASS",
+   "detail": "cards=3"
+  },
+  {
+   "check": "What-If sensitivity: every input can be varied",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "What-If: total spend unlinked (free input)",
+   "result": "PASS",
+   "detail": ""
+  },
+  {
+   "check": "What-If input wi_orders_per_month = 1.0",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "What-If input wi_orders_per_month = 20.0",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "What-If input wi_days_since_last_order = 0.0",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "What-If input wi_days_since_last_order = 60.0",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "What-If input wi_avg_order_value = 15.0",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "What-If input wi_avg_order_value = 250.0",
+   "result": "PASS",
+   "detail": "[]"
+  },
+  {
+   "check": "What-If 'Reset to base diner' button",
+   "result": "PASS",
+   "detail": ""
+  },
+  {
+   "check": "Risk tiers at exact boundaries (25 / 50 / 75 %) follow the documented bands",
+   "result": "PASS",
+   "detail": "{}"
+  },
+  {
+   "check": "Five-feature clustering contract",
+   "result": "PASS",
+   "detail": ""
+  },
+  {
+   "check": "Seven-feature classifier contract (order unchanged)",
+   "result": "PASS",
+   "detail": ""
+  },
+  {
+   "check": "Independent preprocessing (cluster scaler ≠ classifier scaler)",
+   "result": "PASS",
+   "detail": ""
+  },
+  {
+   "check": "predict() and predict_proba() both work and agree at the 0.5 cut-off",
+   "result": "PASS",
+   "detail": ""
+  },
+  {
+   "check": "Every segment returns recommended items",
+   "result": "PASS",
+   "detail": ""
+  },
+  {
+   "check": "Governance live artifact checks all PASS",
+   "result": "PASS",
+   "detail": "{'Check': ['Artifact keys', 'Clustering features = 5, contract order', 'Cluster scaler expects 5 features', 'Classifier expects 7 features (5 + age, total spend)', 'Classifier feature order matches contract', 'Independent preprocessing (cluster scaler ≠ classifier scaler)', 'Every cluster has a business name', 'Every segment has recommendations', 'Live inference via app.py pathway'], 'Status': ['P"
+  },
+  {
+   "check": "Overview: repeated-CV KPI labelled as such and paired with its own 58.5% baseline",
+   "result": "PASS",
+   "detail": "('85.8%', 'Post-selection stability check ± 3.0% · its baseline 58.5% · AUC 0.94')"
+  },
+  {
+   "check": "Retention: no 'expected real-world accuracy' claim for repeated CV",
+   "result": "PASS",
+   "detail": ""
+  },
+  {
+   "check": "Retention: note separates selection, independent test evaluation and post-selection stability check (no nested CV)",
+   "result": "PASS",
+   "detail": ""
+  },
+  {
+   "check": "Retention: repeated-CV KPI uses the 58.5% baseline, test KPI uses the 58.7% baseline",
+   "result": "PASS",
+   "detail": "{'Repeated-CV accuracy': ('85.8%', 'Stability check, 50 fits ± 3.0% · its baseline 58.5%'), 'Test-split accuracy': ('90.2%', 'Held-out · 95% CI 83.7%–95.7% · +31.5 pp vs its 58.7% baseline'), 'ROC-AUC': ('0.944', 'Repeated-CV mean · held-out test 0.973 (0.5 = random)'), 'Churners caught': ('79%', 'Test recall · 95% CI 66%–91%'), 'Precision': ('87%', 'Of predicted reorders · F1 0.922'), 'Scope': ('"
+  },
+  {
+   "check": "Governance: selection-CV chart compares with the training-set baseline (58.4%)",
+   "result": "PASS",
+   "detail": "['majority-class share (training set) 58.4%']"
+  },
+  {
+   "check": "Governance model card: held-out test row marked independent; repeated CV marked post-selection, not nested",
+   "result": "PASS",
+   "detail": ""
+  },
+  {
+   "check": "Governance: 'Analysis population' KPI shows 480 → 460 adult classifier → 368 training + 92 test (independent recount); no 'Training data' KPI",
+   "result": "PASS",
+   "detail": "{'shown': ('480', '480 diners · 460 adult classifier population · 368 training observations · 92 test observations'), 'expected': ('480', '480 diners · 460 adult classifier population · 368 training observations · 92 test observations')}"
+  },
+  {
+   "check": "Range A: reference range = min–max over the adult classifier-eligible diners (independent recount), not the training split",
+   "result": "PASS",
+   "detail": "{'n_reference': 460, 'differs_from_368_split': ['avg_order_value', 'age']}"
+  },
+  {
+   "check": "Range C: every feature minimum and maximum identical to the previous submission (exact)",
+   "result": "PASS",
+   "detail": "{'now': {'orders_per_month': (1.0, 20.0), 'avg_order_value': (29.5, 218.66), 'avg_items_per_order': (1.0, 9.0), 'days_since_last_order': (0.0, 34.0), 'discount_rate': (0.0, 0.86), 'age': (18.0, 52.0), 'total_spend': (134.04, 1490.17)}, 'before': {'orders_per_month': [1.0, 20.0], 'avg_order_value': [29.5, 218.66], 'avg_items_per_order': [1.0, 9.0], 'days_since_last_order': [0.0, 34.0], 'discount_ra"
+  },
+  {
+   "check": "Range B/F: Governance shows 'Observed adult classifier range' (same values), the 460 = 368 + 92 note, and no 'training range' wording (feature table, note, DQ-05)",
+   "result": "PASS",
+   "detail": "{'feature_table': True, 'note': True, 'dq05': {'ID': 'DQ-05', 'Dataset': 'diners', 'Issue': 'Dashboard inputs may fall outside the observed adult classifier range (input limits exceed it, e.g. recency ≤60 vs max 34; spend ≤20,000 vs max 1,490)', 'Quantity': '6 of 7 classifier input controls', 'Classification': 'Application constraint', 'Treatment': 'Values outside it remain permitted by the dashbo"
+  },
+  {
+   "check": "Range F: scoring-page warning reads 'Observed adult reference-range warning … observed adult range'",
+   "result": "PASS",
+   "detail": "['Days since last order = 60 (observed adult range 0–34)']"
+  },
+  {
+   "check": "Range F: What-If warning reads 'Outside the observed adult range'",
+   "result": "PASS",
+   "detail": ""
+  },
+  {
+   "check": "Batch D/E (mixed_valid_and_invalid): export byte-identical to the previous submission (schema incl. 'outside_training_range' where rows are scored, field values, segments, probabilities, tiers, flagged rows)",
+   "result": "PASS",
+   "detail": "{'bytes_now': 2884, 'bytes_before': 2884, 'field_present': True}"
+  },
+  {
+   "check": "Batch D/E (under18_only): export byte-identical to the previous submission (schema incl. 'outside_training_range' where rows are scored, field values, segments, probabilities, tiers, flagged rows)",
+   "result": "PASS",
+   "detail": "{'bytes_now': 340, 'bytes_before': 340, 'field_present': False}"
+  },
+  {
+   "check": "Range F: batch table on screen shows 'Outside observed adult range' (technical name only in the export)",
+   "result": "PASS",
+   "detail": "['diner_id', 'status', 'segment', 'p_reorder', 'will_reorder', 'risk_tier', 'action', 'recommended_items', 'Outside observed adult range']"
+  },
+  {
+   "check": "Governance issue log: DQ-01 / DQ-05 identical to the regenerated issue-log CSV; DQ-01 names 460 eligible = 368 training + 92 held-out test; no runtime text substitution in app.py",
+   "result": "PASS",
+   "detail": "{'DQ-01 impact': 'Classifier-eligible population: 460 adult diners (368 training observations and 92 held-out test observations)'}"
+  }
+ ]
+}

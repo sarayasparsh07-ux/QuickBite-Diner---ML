@@ -1,0 +1,1180 @@
+{
+ "summary": {
+  "controls": 73,
+  "controls_passed": 73,
+  "by_group": {
+   "framework": {
+    "executed": 25,
+    "passed": 25
+   },
+   "checksum": {
+    "executed": 6,
+    "passed": 6
+   },
+   "dq_log": {
+    "executed": 8,
+    "passed": 8
+   },
+   "dq05_quantity": {
+    "executed": 10,
+    "passed": 10
+   },
+   "cv_display": {
+    "executed": 11,
+    "passed": 11
+   },
+   "cv_stored": {
+    "executed": 2,
+    "passed": 2
+   },
+   "prediction_structure": {
+    "executed": 11,
+    "passed": 11
+   }
+  },
+  "artifacts_unchanged": true,
+  "artifacts_checked": 28
+ },
+ "results": [
+  {
+   "test": "0  Unmodified final version (reference run)",
+   "group": "framework",
+   "expected": "PASS",
+   "framework_verdict": "PASS",
+   "control_passed": true,
+   "detected": [],
+   "accepted_as": [
+    "DQ01:dq01-bundle-row",
+    "DQ01:dq01-governance-row",
+    "DQ05:dq05-bundle-row",
+    "DQ05:dq05-governance-row",
+    "M1:bundle schema",
+    "M1:governance table row (every cell = independent recomputation; shared values unchanged)",
+    "M1:governance table schema",
+    "M1:gv-baseline-line",
+    "M2:kpi-overview-rename",
+    "M2:kpi-retention-rename",
+    "M2:kpi-rocauc-context",
+    "M2:kpi-test-context"
+   ]
+  },
+  {
+   "test": "A  Association-rule lift + 1e-6",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "/rules_all · /rules_all: row 3 (3)"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "B  Chart text label changed (ov_ret bar label, numbers unchanged)",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "Executive Overview · chart 'ov_ret' · bar:None · text"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "C  Trace renamed (ov_conc 'Share of diners'), data unchanged",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "Executive Overview · chart 'ov_conc' · bar:'Share of diners' · name"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "D  One profile's segment changed",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "final vs supplied_original · real_adult_diners:0 · prediction value mismatch (real_adult_diners:0 · segment)"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "E1 Shared CV-accuracy value changed in model_comparison (bundle)",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "/model_comparison · /model_comparison: row 1 (1)"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "E2 CV-accuracy cell changed in the Governance selection table",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "Governance & Data Quality · table 5, row 2"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "F  Documented R1 tie-break applied to the received bundle",
+   "group": "framework",
+   "expected": "PASS",
+   "framework_verdict": "PASS",
+   "control_passed": true,
+   "detected": [],
+   "accepted_as": [
+    "R1:bundle rule row"
+   ]
+  },
+  {
+   "test": "F2 Direction of a different rule swapped (R1 must not cover it)",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "/rules_all · /rules_all: row 0 (0)"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "G  Documented M1 correction applied to the received bundle",
+   "group": "framework",
+   "expected": "PASS",
+   "framework_verdict": "PASS",
+   "control_passed": true,
+   "detected": [],
+   "accepted_as": [
+    "M1:bundle schema"
+   ]
+  },
+  {
+   "test": "G2 M1 correction plus one unrelated change in a shared column (must not hide behind M1)",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "/model_comparison · /model_comparison: row 2 (2)"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "H1 Cluster count changed (meta.K 3 → 4)",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "/meta/K · /meta/K"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "H2 Segment renamed in the segment profile",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "/seg_profile · /seg_profile: index changed"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "H3 Confusion matrix changed",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "/cm[0][0] · /cm[0][0]",
+    "/cm[0][1] · /cm[0][1]"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "H4 What-If scenario result changed",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "/scenarios · /scenarios: row 0 (0)"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "H5 Financial value changed (ROI curve net value + AED 1)",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "/roi_curve · /roi_curve: row 5 (5)"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "H6 Chart category renamed (x label), values unchanged",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "Executive Overview · chart 'ov_ret' · bar:None · x"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "H7 Chart title changed back to an unapproved wording",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "Retention & Churn · chart 'rt_cv' · title"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "H8 KPI value changed",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "Executive Overview · KPI 'Retention rate' value changed"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "H9 Governance 'Analysis population' value changed (480 → 479) behind the approved rename",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "Governance & Data Quality · KPI 'Training data' no longer shown",
+    "Governance & Data Quality · KPI 'Analysis population' newly shown"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "H10 Governance population context changed (368 → 369 training observations)",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "Governance & Data Quality · KPI 'Training data' no longer shown",
+    "Governance & Data Quality · KPI 'Analysis population' newly shown"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "H11 New population context shown under the old 'Training data' label",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "Governance & Data Quality · KPI 'Training data' value changed",
+    "Governance & Data Quality · KPI 'Training data' context changed"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "H12 Relabelled range column with one value changed to the training-split range",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "Governance & Data Quality · table 4, row 2"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "H13 Range column shown under an unapproved heading",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "Governance & Data Quality · table 4: columns changed",
+    "Governance & Data Quality · table 4, row 1",
+    "Governance & Data Quality · table 4, row 2",
+    "Governance & Data Quality · table 4, row 3"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "H14 DQ-05 display wording reverted in one cell",
+   "group": "framework",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "Governance & Data Quality · table 9, row 5"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "CK0 Unmodified copies of the protected artifacts (positive control)",
+   "group": "checksum",
+   "expected": "PASS",
+   "framework_verdict": "PASS",
+   "expected_defect": "all checksum-monitored protected artifacts unchanged",
+   "reported": [
+    "PASS — 9 files, MD5 and SHA-256 equal to reference"
+   ],
+   "control_passed": true,
+   "detected": [],
+   "accepted_as": []
+  },
+  {
+   "test": "CK1 One byte appended to a copy of data/raw/diners.csv",
+   "group": "checksum",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "expected_defect": "data/raw/diners.csv · MD5 · FAIL (differs from reference)",
+   "reported": [
+    "data/raw/diners.csv · MD5 · FAIL (differs from reference)"
+   ],
+   "control_passed": true,
+   "detected": [
+    "data/raw/diners.csv · MD5 · FAIL (differs from reference)"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "CK2 One bit flipped in a copy of food_models.joblib (same size)",
+   "group": "checksum",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "expected_defect": "food_models.joblib · SHA-256 · FAIL (differs from reference)",
+   "reported": [
+    "food_models.joblib · SHA-256 · FAIL (differs from reference)"
+   ],
+   "control_passed": true,
+   "detected": [
+    "food_models.joblib · SHA-256 · FAIL (differs from reference)"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "CK3 Copy of app.py deleted",
+   "group": "checksum",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "expected_defect": "app.py · MD5 · FAIL (file missing)",
+   "reported": [
+    "app.py · MD5 · FAIL (file missing)"
+   ],
+   "control_passed": true,
+   "detected": [
+    "app.py · MD5 · FAIL (file missing)"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "CK4 Copy of dashboard_bundle.joblib changed between the start and end of a run",
+   "group": "checksum",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "expected_defect": "dashboard_bundle.joblib · MD5 · FAIL (changed during the run)",
+   "reported": [
+    "dashboard_bundle.joblib · MD5 · FAIL (changed during the run)"
+   ],
+   "control_passed": true,
+   "detected": [
+    "dashboard_bundle.joblib · MD5 · FAIL (changed during the run)"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "CK5 Copy of data/clean/orders_clean.csv changed between the start and end of a run",
+   "group": "checksum",
+   "expected": "FAIL",
+   "framework_verdict": "FAIL",
+   "expected_defect": "data/clean/orders_clean.csv · SHA-256 · FAIL (changed during the run)",
+   "reported": [
+    "data/clean/orders_clean.csv · SHA-256 · FAIL (changed during the run)"
+   ],
+   "control_passed": true,
+   "detected": [
+    "data/clean/orders_clean.csv · SHA-256 · FAIL (changed during the run)"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "DQ-A DQ-01 claims the classifier was trained on 460 diners (all five representations)",
+   "group": "dq_log",
+   "expected": "FAIL",
+   "expected_defect": "incorrect classifier training population description",
+   "reported": [
+    "FAIL — incorrect classifier training population description"
+   ],
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "FAIL — incorrect classifier training population description"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "DQ-B DQ-01 states 93 held-out test observations instead of 92",
+   "group": "dq_log",
+   "expected": "FAIL",
+   "expected_defect": "incorrect held-out test population description",
+   "reported": [
+    "FAIL — incorrect held-out test population description"
+   ],
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "FAIL — incorrect held-out test population description"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "DQ-C DQ-05 reverted to 'training range' wording",
+   "group": "dq_log",
+   "expected": "FAIL",
+   "expected_defect": "obsolete reference-range terminology",
+   "reported": [
+    "FAIL — obsolete reference-range terminology"
+   ],
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "FAIL — obsolete reference-range terminology"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "DQ-D One observed adult range maximum changed in a bundle copy (age 52 → 53)",
+   "group": "dq_log",
+   "expected": "FAIL",
+   "expected_defect": "observed adult reference range changed",
+   "reported": [
+    "FAIL — observed adult reference range changed"
+   ],
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "FAIL — observed adult reference range changed"
+   ],
+   "accepted_as": [],
+   "strict_comparison_flagged": true
+  },
+  {
+   "test": "DQ-E Export schema with outside_training_range renamed (temporary header copy)",
+   "group": "dq_log",
+   "expected": "FAIL",
+   "expected_defect": "batch CSV schema compatibility broken",
+   "reported": [
+    "FAIL — batch CSV schema compatibility broken"
+   ],
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "FAIL — batch CSV schema compatibility broken"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "DQ-F Corrected DQ-01 and DQ-05 entries as shipped (positive control)",
+   "group": "dq_log",
+   "expected": "PASS",
+   "expected_defect": "data-quality descriptions are consistent",
+   "reported": [
+    "PASS — data-quality descriptions are consistent"
+   ],
+   "framework_verdict": "PASS",
+   "control_passed": true,
+   "detected": [
+    "PASS — data-quality descriptions are consistent"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "DQ-G Unrelated analytical value changed in a bundle copy (accuracy + 0.001) next to the approved DQ changes",
+   "group": "dq_log",
+   "expected": "FAIL",
+   "expected_defect": "unexplained analytical difference",
+   "reported": [
+    "FAIL — unexplained analytical difference (/metrics/Accuracy)"
+   ],
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "/metrics/Accuracy"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "DQ-H DQ-05 changed in the CSV only (other four representations correct)",
+   "group": "dq_log",
+   "expected": "FAIL",
+   "expected_defect": "cross-document mismatch for DQ-05",
+   "reported": [
+    "FAIL — cross-document mismatch for DQ-05"
+   ],
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "FAIL — cross-document mismatch for DQ-05"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "Q-4 DQ-05 Quantity '4 of 7 classifier input controls' (all five representations)",
+   "group": "dq05_quantity",
+   "expected": "FAIL",
+   "expected_defect": "incorrect DQ-05 quantity",
+   "reported": [
+    "FAIL — incorrect DQ-05 quantity"
+   ],
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "FAIL — incorrect DQ-05 quantity"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "Q-5 DQ-05 Quantity '5 of 7 classifier input controls' (all five representations)",
+   "group": "dq05_quantity",
+   "expected": "FAIL",
+   "expected_defect": "incorrect DQ-05 quantity",
+   "reported": [
+    "FAIL — incorrect DQ-05 quantity"
+   ],
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "FAIL — incorrect DQ-05 quantity"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "Q-7 DQ-05 Quantity '7 of 7 classifier input controls' (all five representations)",
+   "group": "dq05_quantity",
+   "expected": "FAIL",
+   "expected_defect": "incorrect DQ-05 quantity",
+   "reported": [
+    "FAIL — incorrect DQ-05 quantity"
+   ],
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "FAIL — incorrect DQ-05 quantity"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "Q-T1 DQ-05 Quantity with a wrong total ('6 of 8 classifier input controls')",
+   "group": "dq05_quantity",
+   "expected": "FAIL",
+   "expected_defect": "incorrect DQ-05 quantity",
+   "reported": [
+    "FAIL — incorrect DQ-05 quantity"
+   ],
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "FAIL — incorrect DQ-05 quantity"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "Q-T2 One classifier control missing from the input-limit specification (6 controls)",
+   "group": "dq05_quantity",
+   "expected": "FAIL",
+   "expected_defect": "classifier input controls incomplete",
+   "reported": [
+    "FAIL — classifier input controls incomplete"
+   ],
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "FAIL — classifier input controls incomplete"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "Q-B Observed adult range boundary changed (orders_per_month max 20 → 19): recalculation gives 7 of 7, shipped text says 6 of 7",
+   "group": "dq05_quantity",
+   "expected": "FAIL",
+   "expected_defect": "incorrect DQ-05 quantity",
+   "reported": [
+    "FAIL — incorrect DQ-05 quantity"
+   ],
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "FAIL — incorrect DQ-05 quantity"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "Q-U Dashboard input limit changed in both app.py and Governance copies (age max 70 → 52): recalculation gives 5 of 7, shipped '6 of 7' must now be rejected",
+   "group": "dq05_quantity",
+   "expected": "FAIL",
+   "expected_defect": "incorrect DQ-05 quantity",
+   "reported": [
+    "FAIL — incorrect DQ-05 quantity"
+   ],
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "FAIL — incorrect DQ-05 quantity"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "Q-S Governance input limits differ from app.py INPUT_SPEC (age max 70 vs 75)",
+   "group": "dq05_quantity",
+   "expected": "FAIL",
+   "expected_defect": "dashboard input limits differ between app.py and the Governance page",
+   "reported": [
+    "FAIL — dashboard input limits differ between app.py and the Governance page"
+   ],
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "FAIL — dashboard input limits differ between app.py and the Governance page"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "Q-E DQ-05 explanation table in the report marks orders_per_month as outside",
+   "group": "dq05_quantity",
+   "expected": "FAIL",
+   "expected_defect": "DQ-05 explanation table disagrees with the calculation",
+   "reported": [
+    "FAIL — DQ-05 explanation table disagrees with the calculation"
+   ],
+   "framework_verdict": "FAIL",
+   "control_passed": true,
+   "detected": [
+    "FAIL — DQ-05 explanation table disagrees with the calculation"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "Q-0 Shipped DQ-05 (6 of 7 classifier input controls) with the real limits and observed ranges (positive control)",
+   "group": "dq05_quantity",
+   "expected": "PASS",
+   "expected_defect": "data-quality descriptions are consistent",
+   "reported": [
+    "PASS — data-quality descriptions are consistent"
+   ],
+   "framework_verdict": "PASS",
+   "control_passed": true,
+   "detected": [
+    "PASS — data-quality descriptions are consistent"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "CV0  Unchanged selection table (positive control)",
+   "group": "cv_display",
+   "expected": "PASS",
+   "expected_defect": null,
+   "reported": [
+    "PASS — all CV accuracy means and standard deviations match independent recomputation"
+   ],
+   "defect_codes": [],
+   "framework_verdict": "PASS",
+   "strict_comparison_flagged": false,
+   "control_passed": true,
+   "detected": [
+    "PASS — all CV accuracy means and standard deviations match independent recomputation"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "CV1  Displayed CV-accuracy SD + 0.05 (Random Forest)",
+   "group": "cv_display",
+   "expected": "FAIL",
+   "expected_defect": "CV accuracy standard deviation mismatch",
+   "reported": [
+    "cv_accuracy_sd_mismatch: CV accuracy standard deviation mismatch · Random Forest (300 trees) · CV accuracy · expected '82.9% ± 2.6%' · actual '82.9% ± 7.6%'"
+   ],
+   "defect_codes": [
+    "cv_accuracy_sd_mismatch"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "cv_accuracy_sd_mismatch: CV accuracy standard deviation mismatch · Random Forest (300 trees) · CV accuracy · expected '82.9% ± 2.6%' · actual '82.9% ± 7.6%'"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "CV2  Displayed CV-accuracy mean wrong (+1 pp, Random Forest)",
+   "group": "cv_display",
+   "expected": "FAIL",
+   "expected_defect": "CV accuracy mean mismatch",
+   "reported": [
+    "cv_accuracy_mean_mismatch: CV accuracy mean mismatch · Random Forest (300 trees) · CV accuracy · expected '82.9% ± 2.6%' · actual '83.9% ± 2.6%'"
+   ],
+   "defect_codes": [
+    "cv_accuracy_mean_mismatch"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "cv_accuracy_mean_mismatch: CV accuracy mean mismatch · Random Forest (300 trees) · CV accuracy · expected '82.9% ± 2.6%' · actual '83.9% ± 2.6%'"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "CV3  '±' separator removed",
+   "group": "cv_display",
+   "expected": "FAIL",
+   "expected_defect": "separator missing",
+   "reported": [
+    "cv_accuracy_separator_missing: CV accuracy '±' separator missing · Random Forest (300 trees) · CV accuracy · expected '82.9% ± 2.6%' · actual '82.9% 2.6%'"
+   ],
+   "defect_codes": [
+    "cv_accuracy_separator_missing"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "cv_accuracy_separator_missing: CV accuracy '±' separator missing · Random Forest (300 trees) · CV accuracy · expected '82.9% ± 2.6%' · actual '82.9% 2.6%'"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "CV4  Display precision wrong (two decimals)",
+   "group": "cv_display",
+   "expected": "FAIL",
+   "expected_defect": "display precision",
+   "reported": [
+    "cv_accuracy_precision: CV accuracy not shown with the display precision (one decimal, 'x.x% ± y.y%') · Random Forest (300 trees) · CV accuracy · expected '82.9% ± 2.6%' · actual '82.87% ± 2.58%'"
+   ],
+   "defect_codes": [
+    "cv_accuracy_precision"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "cv_accuracy_precision: CV accuracy not shown with the display precision (one decimal, 'x.x% ± y.y%') · Random Forest (300 trees) · CV accuracy · expected '82.9% ± 2.6%' · actual '82.87% ± 2.58%'"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "CV5  Standard deviation removed",
+   "group": "cv_display",
+   "expected": "FAIL",
+   "expected_defect": "standard deviation missing",
+   "reported": [
+    "cv_accuracy_sd_missing: CV accuracy standard deviation missing · Random Forest (300 trees) · CV accuracy · expected '82.9% ± 2.6%' · actual '82.9%'"
+   ],
+   "defect_codes": [
+    "cv_accuracy_sd_missing"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "cv_accuracy_sd_missing: CV accuracy standard deviation missing · Random Forest (300 trees) · CV accuracy · expected '82.9% ± 2.6%' · actual '82.9%'"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "CV6  CV precision value wrong (+0.010)",
+   "group": "cv_display",
+   "expected": "FAIL",
+   "expected_defect": "CV precision differs",
+   "reported": [
+    "CV precision_mismatch: CV precision differs from the independent recomputation · Random Forest (300 trees) · CV precision · expected '0.871' · actual '0.881'"
+   ],
+   "defect_codes": [
+    "CV precision_mismatch"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "CV precision_mismatch: CV precision differs from the independent recomputation · Random Forest (300 trees) · CV precision · expected '0.871' · actual '0.881'"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "CV7  One model row removed (Random Forest)",
+   "group": "cv_display",
+   "expected": "FAIL",
+   "expected_defect": "candidate model row missing",
+   "reported": [
+    "row_missing: candidate model row missing · Random Forest (300 trees) · None · expected 1 · actual 0"
+   ],
+   "defect_codes": [
+    "row_missing"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "row_missing: candidate model row missing · Random Forest (300 trees) · None · expected 1 · actual 0"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "CV8  One model row duplicated (Random Forest)",
+   "group": "cv_display",
+   "expected": "FAIL",
+   "expected_defect": "duplicate model row",
+   "reported": [
+    "row_duplicate: duplicate model row · Random Forest (300 trees) · None · expected 1 · actual 2"
+   ],
+   "defect_codes": [
+    "row_duplicate"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "row_duplicate: duplicate model row · Random Forest (300 trees) · None · expected 1 · actual 2"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "CV9  Selected indicator moved to Random Forest",
+   "group": "cv_display",
+   "expected": "FAIL",
+   "expected_defect": "exactly one row must be marked selected",
+   "reported": [
+    "selected_indicator: exactly one row must be marked selected — the model chosen by the documented rule · None · None · expected ['Logistic Regression (scaled)'] · actual ['Random Forest (300 trees)']"
+   ],
+   "defect_codes": [
+    "selected_indicator"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "selected_indicator: exactly one row must be marked selected — the model chosen by the documented rule · None · None · expected ['Logistic Regression (scaled)'] · actual ['Random Forest (300 trees)']"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "CV10 Held-out test column added",
+   "group": "cv_display",
+   "expected": "FAIL",
+   "expected_defect": "test column",
+   "reported": [
+    "test_column_present: a held-out test column appears in the model-selection table · None · None · expected None · actual ['Test accuracy']"
+   ],
+   "defect_codes": [
+    "schema",
+    "test_column_present"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "test_column_present: a held-out test column appears in the model-selection table · None · None · expected None · actual ['Test accuracy']"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "CV11 Stored CV-accuracy SD + 0.05 (model_comparison row 2)",
+   "group": "cv_stored",
+   "expected": "FAIL",
+   "expected_defect": "CV accuracy standard deviation mismatch",
+   "reported": [
+    "cv_accuracy_sd_mismatch: CV accuracy standard deviation mismatch · Random Forest (300 trees) · CV accuracy (sd) · expected 0.025818666151887243 · actual 0.07581866615188725"
+   ],
+   "defect_codes": [
+    "cv_accuracy_sd_mismatch"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "cv_accuracy_sd_mismatch: CV accuracy standard deviation mismatch · Random Forest (300 trees) · CV accuracy (sd) · expected 0.025818666151887243 · actual 0.07581866615188725"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "CV12 Stored CV-accuracy SD + 0.0005 (below display precision)",
+   "group": "cv_stored",
+   "expected": "FAIL",
+   "expected_defect": "CV accuracy standard deviation mismatch",
+   "reported": [
+    "cv_accuracy_sd_mismatch: CV accuracy standard deviation mismatch · Random Forest (300 trees) · CV accuracy (sd) · expected 0.025818666151887243 · actual 0.026318666151887243"
+   ],
+   "defect_codes": [
+    "cv_accuracy_sd_mismatch"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "cv_accuracy_sd_mismatch: CV accuracy standard deviation mismatch · Random Forest (300 trees) · CV accuracy (sd) · expected 0.025818666151887243 · actual 0.026318666151887243"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "PA Trailing field removed (tier)",
+   "group": "prediction_structure",
+   "expected": "FAIL",
+   "expected_defect": "prediction record has fewer fields than expected",
+   "reported": [
+    "prediction record has fewer fields than expected (record 17) · version=final, record_index=17, expected_fields=6, actual_fields=5, missing_fields=['tier']"
+   ],
+   "defect_codes": [
+    "pred_fewer_fields"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "prediction record has fewer fields than expected (record 17) · version=final, record_index=17, expected_fields=6, actual_fields=5, missing_fields=['tier']"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "PB Extra field appended",
+   "group": "prediction_structure",
+   "expected": "FAIL",
+   "expected_defect": "prediction record contains an unexpected field",
+   "reported": [
+    "prediction record contains an unexpected field (record 17) · version=final, record_index=17, expected_fields=6, actual_fields=7, extra_values=['extra']"
+   ],
+   "defect_codes": [
+    "pred_extra_field"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "prediction record contains an unexpected field (record 17) · version=final, record_index=17, expected_fields=6, actual_fields=7, extra_values=['extra']"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "PC Intermediate field removed (prob)",
+   "group": "prediction_structure",
+   "expected": "FAIL",
+   "expected_defect": "prediction schema mismatch",
+   "reported": [
+    "prediction schema mismatch (a field is missing inside the record) (record 17) · version=final, record_index=17, expected_fields=6, actual_fields=5, missing_fields=['prob']"
+   ],
+   "defect_codes": [
+    "pred_schema_missing_field"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "prediction schema mismatch (a field is missing inside the record) (record 17) · version=final, record_index=17, expected_fields=6, actual_fields=5, missing_fields=['prob']"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "PD One record removed",
+   "group": "prediction_structure",
+   "expected": "FAIL",
+   "expected_defect": "prediction collection length mismatch",
+   "reported": [
+    "prediction collection length mismatch · version=final, missing_profile_ids=['real_adult_diners:17'], extra_profile_ids=[]"
+   ],
+   "defect_codes": [
+    "pred_collection_length"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "prediction collection length mismatch · version=final, missing_profile_ids=['real_adult_diners:17'], extra_profile_ids=[]"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "PE One record added",
+   "group": "prediction_structure",
+   "expected": "FAIL",
+   "expected_defect": "prediction collection length mismatch",
+   "reported": [
+    "prediction collection length mismatch · version=final, missing_profile_ids=[], extra_profile_ids=['random_in_range:999999']"
+   ],
+   "defect_codes": [
+    "pred_collection_length"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "prediction collection length mismatch · version=final, missing_profile_ids=[], extra_profile_ids=['random_in_range:999999']"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "PF Identical copy (positive control)",
+   "group": "prediction_structure",
+   "expected": "PASS",
+   "expected_defect": "prediction records match exactly",
+   "reported": [
+    "PASS — prediction records match exactly"
+   ],
+   "defect_codes": [],
+   "framework_verdict": "PASS",
+   "strict_comparison_flagged": false,
+   "control_passed": true,
+   "detected": [
+    "PASS — prediction records match exactly"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "PG One probability + 1e-12",
+   "group": "prediction_structure",
+   "expected": "FAIL",
+   "expected_defect": "prediction value mismatch",
+   "reported": [
+    "prediction value mismatch (real_adult_diners:17 · prob) · profile_id=real_adult_diners:17, field=prob"
+   ],
+   "defect_codes": [
+    "pred_value"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "prediction value mismatch (real_adult_diners:17 · prob) · profile_id=real_adult_diners:17, field=prob"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "PH One profile identifier relabelled",
+   "group": "prediction_structure",
+   "expected": "FAIL",
+   "expected_defect": "prediction/profile correspondence mismatch",
+   "reported": [
+    "prediction/profile correspondence mismatch (record 17) · version=final, record_index=17"
+   ],
+   "defect_codes": [
+    "pred_correspondence",
+    "pred_duplicate_ids"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "prediction/profile correspondence mismatch (record 17) · version=final, record_index=17"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "PI Two fields swapped (reorder ↔ prob)",
+   "group": "prediction_structure",
+   "expected": "FAIL",
+   "expected_defect": "prediction schema mismatch (field order or type)",
+   "reported": [
+    "prediction schema mismatch (field order or type) (record 17) · version=final, record_index=17, fields_failing_contract=['reorder', 'prob']"
+   ],
+   "defect_codes": [
+    "pred_schema_order_or_type"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "prediction schema mismatch (field order or type) (record 17) · version=final, record_index=17, fields_failing_contract=['reorder', 'prob']"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "PJ Two records swapped (order)",
+   "group": "prediction_structure",
+   "expected": "FAIL",
+   "expected_defect": "prediction/profile correspondence mismatch",
+   "reported": [
+    "prediction/profile correspondence mismatch (record 17) · version=final, record_index=17",
+    "prediction/profile correspondence mismatch (record 18) · version=final, record_index=18"
+   ],
+   "defect_codes": [
+    "pred_correspondence"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "prediction/profile correspondence mismatch (record 17) · version=final, record_index=17",
+    "prediction/profile correspondence mismatch (record 18) · version=final, record_index=18"
+   ],
+   "accepted_as": []
+  },
+  {
+   "test": "PK Field definition changed (header 'prob' → 'probability')",
+   "group": "prediction_structure",
+   "expected": "FAIL",
+   "expected_defect": "prediction field definition differs from the authoritative schema",
+   "reported": [
+    "prediction field definition differs from the authoritative schema · version=supplied_original",
+    "prediction field definition differs from the authoritative schema · version=final"
+   ],
+   "defect_codes": [
+    "pred_fields_definition"
+   ],
+   "framework_verdict": "FAIL",
+   "strict_comparison_flagged": true,
+   "control_passed": true,
+   "detected": [
+    "prediction field definition differs from the authoritative schema · version=supplied_original",
+    "prediction field definition differs from the authoritative schema · version=final"
+   ],
+   "accepted_as": []
+  }
+ ],
+ "md5": {
+  "food_models.joblib": "7b1f8a39310cc735d15cbc3f89754045",
+  "dashboard_bundle.joblib": "202bb66471fea96a3e6fde3aef08e47a",
+  "app.py": "e01606439b07fc2c89ef8d838701caf1",
+  "validation/captures/capture_final.json": "36c1bcfc2d66fcf52e67a4e2d426cdbc",
+  "validation/inference_check_results.per_profile.json.gz": "63875b94a8a253f9c71c352567f001e2",
+  "validation/approved_differences.json": "256f12c7f1d1617837e8f695368af665",
+  "validation/protected_checksums.json": "18a0850f482348966d88e50b44b2564f",
+  "validation/baselines/README.md": "4c5f534a8e495d4c42f8169f9bd32fe2",
+  "validation/baselines/app_original_supplied.py": "ea7999344d51e9d656133d89cc25c6a3",
+  "validation/baselines/app_pre_redesign.py": "1fd983f4b0fb3303669e131ebc75feb1",
+  "validation/baselines/app_v1_received.py": "b941e52fe17e53eba7e3278aef61ef73",
+  "validation/baselines/app_v2_previous_refinement.py": "40910923259b46ad165bc2858c2f26bf",
+  "validation/baselines/app_v3_micro_refinement.py": "cb5fb20f7ff05ff6385236281ac8df93",
+  "validation/baselines/app_v4_final_polish.py": "75a40a85ca985a3b84d2f08156839217",
+  "validation/baselines/app_v5_range_correction.py": "dec5e977ff55da2ebd73a20941fada34",
+  "validation/baselines/bundle_v1_received.json.gz": "40767a86a8928825169c7daf9eac93cf",
+  "validation/baselines/bundle_v2_previous_refinement.json.gz": "948acca2b2552c68cb577a76a1f3401e",
+  "validation/baselines/bundle_v3_micro_refinement.json.gz": "6478f29bd757cd5e63c6a31b589f7a4c",
+  "validation/baselines/bundle_v4_final_polish.json.gz": "7821ccfa4cee8de852b402c79ccfa9fc",
+  "validation/baselines/bundle_v5_range_correction.json.gz": "46ca813a03b4e02369b614a076c9d205",
+  "validation/baselines/bundle_v6_dq_correction.json.gz": "3e448c404b6fe1e548b0e209c7d98074",
+  "validation/baselines/capture_pre_redesign.json": "b656fe88a7c54f4475909e88c05e7341",
+  "validation/baselines/capture_v1_received.json": "21bde0bd62b58e520784884d5d742271",
+  "validation/baselines/capture_v2_previous_refinement.json": "ecedc60fa80a8fd4c0abe03bd33e528d",
+  "validation/baselines/capture_v3_micro_refinement.json": "d24e08f1808e66fa835a793b794ca65f",
+  "validation/baselines/capture_v4_final_polish.json": "ec8022276104ae0c2d88f558f8825474",
+  "validation/baselines/capture_v5_range_correction.json": "332eda4bd88951d6774de2ad4c798b2d",
+  "validation/baselines/capture_v6_dq_correction.json": "eec5d4bbcc051a1defb8722ba089bba8"
+ }
+}

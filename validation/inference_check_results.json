@@ -1,0 +1,255 @@
+{
+ "profile_sets": {
+  "real_adult_diners": 460,
+  "boundary_grid": 2187,
+  "random_in_range": 1000,
+  "threshold_edge": 1532
+ },
+ "versions": {
+  "supplied_original": {
+   "contract": {
+    "artifact_keys": [
+     "clf",
+     "features",
+     "kmeans",
+     "reco",
+     "scaler",
+     "segment_names"
+    ],
+    "clustering_features": [
+     "orders_per_month",
+     "avg_order_value",
+     "avg_items_per_order",
+     "days_since_last_order",
+     "discount_rate"
+    ],
+    "scaler_n_features": 5,
+    "classifier_n_features": 7,
+    "classifier_feature_order": [
+     "orders_per_month",
+     "avg_order_value",
+     "avg_items_per_order",
+     "days_since_last_order",
+     "discount_rate",
+     "age",
+     "total_spend"
+    ],
+    "independent_scalers": true,
+    "segment_names": {
+     "1": "Budget Students",
+     "2": "Premium Foodies",
+     "0": "Family Feasters"
+    },
+    "reco": {
+     "Premium Foodies": [
+      "salad",
+      "sushi",
+      "coffee",
+      "wine"
+     ],
+     "Family Feasters": [
+      "dessert",
+      "pizza",
+      "raita",
+      "biryani"
+     ],
+     "Budget Students": [
+      "cola",
+      "fries",
+      "burger",
+      "wrap"
+     ]
+    }
+   },
+   "analyse_source_lines": 8,
+   "segment_counts": {
+    "Family Feasters": 2878,
+    "Budget Students": 1268,
+    "Premium Foodies": 1033
+   },
+   "reorder_yes": 1471,
+   "mean_prob": 0.2890883032889363,
+   "tier_counts": {
+    "High churn risk": 2766,
+    "At-risk": 942,
+    "Moderate retention likelihood": 921,
+    "High retention likelihood": 550
+   },
+   "predict_matches_proba_threshold": true
+  },
+  "v1_received": {
+   "contract": {
+    "artifact_keys": [
+     "clf",
+     "features",
+     "kmeans",
+     "reco",
+     "scaler",
+     "segment_names"
+    ],
+    "clustering_features": [
+     "orders_per_month",
+     "avg_order_value",
+     "avg_items_per_order",
+     "days_since_last_order",
+     "discount_rate"
+    ],
+    "scaler_n_features": 5,
+    "classifier_n_features": 7,
+    "classifier_feature_order": [
+     "orders_per_month",
+     "avg_order_value",
+     "avg_items_per_order",
+     "days_since_last_order",
+     "discount_rate",
+     "age",
+     "total_spend"
+    ],
+    "independent_scalers": true,
+    "segment_names": {
+     "1": "Budget Students",
+     "2": "Premium Foodies",
+     "0": "Family Feasters"
+    },
+    "reco": {
+     "Premium Foodies": [
+      "salad",
+      "sushi",
+      "coffee",
+      "wine"
+     ],
+     "Family Feasters": [
+      "dessert",
+      "pizza",
+      "raita",
+      "biryani"
+     ],
+     "Budget Students": [
+      "cola",
+      "fries",
+      "burger",
+      "wrap"
+     ]
+    }
+   },
+   "analyse_source_lines": 8,
+   "segment_counts": {
+    "Family Feasters": 2878,
+    "Budget Students": 1268,
+    "Premium Foodies": 1033
+   },
+   "reorder_yes": 1471,
+   "mean_prob": 0.2890883032889363,
+   "tier_counts": {
+    "High churn risk": 2766,
+    "At-risk": 942,
+    "Moderate retention likelihood": 921,
+    "High retention likelihood": 550
+   },
+   "predict_matches_proba_threshold": true
+  },
+  "final": {
+   "contract": {
+    "artifact_keys": [
+     "clf",
+     "features",
+     "kmeans",
+     "reco",
+     "scaler",
+     "segment_names"
+    ],
+    "clustering_features": [
+     "orders_per_month",
+     "avg_order_value",
+     "avg_items_per_order",
+     "days_since_last_order",
+     "discount_rate"
+    ],
+    "scaler_n_features": 5,
+    "classifier_n_features": 7,
+    "classifier_feature_order": [
+     "orders_per_month",
+     "avg_order_value",
+     "avg_items_per_order",
+     "days_since_last_order",
+     "discount_rate",
+     "age",
+     "total_spend"
+    ],
+    "independent_scalers": true,
+    "segment_names": {
+     "1": "Budget Students",
+     "2": "Premium Foodies",
+     "0": "Family Feasters"
+    },
+    "reco": {
+     "Premium Foodies": [
+      "salad",
+      "sushi",
+      "coffee",
+      "wine"
+     ],
+     "Family Feasters": [
+      "dessert",
+      "pizza",
+      "raita",
+      "biryani"
+     ],
+     "Budget Students": [
+      "cola",
+      "fries",
+      "burger",
+      "wrap"
+     ]
+    }
+   },
+   "analyse_source_lines": 8,
+   "segment_counts": {
+    "Family Feasters": 2878,
+    "Budget Students": 1268,
+    "Premium Foodies": 1033
+   },
+   "reorder_yes": 1471,
+   "mean_prob": 0.2890883032889363,
+   "tier_counts": {
+    "High churn risk": 2766,
+    "At-risk": 942,
+    "Moderate retention likelihood": 921,
+    "High retention likelihood": 550
+   },
+   "predict_matches_proba_threshold": true
+  }
+ },
+ "comparisons": {
+  "supplied_original vs v1_received": {
+   "profiles": 5179,
+   "structural_defects": 0,
+   "segment_mismatches": 0,
+   "reorder_mismatches": 0,
+   "probability_mismatches_exact": 0,
+   "max_abs_probability_difference": 0.0,
+   "recommendation_mismatches": 0,
+   "risk_tier_mismatches": 0,
+   "analyse_logic_identical": true
+  },
+  "supplied_original vs final": {
+   "profiles": 5179,
+   "structural_defects": 0,
+   "segment_mismatches": 0,
+   "reorder_mismatches": 0,
+   "probability_mismatches_exact": 0,
+   "max_abs_probability_difference": 0.0,
+   "recommendation_mismatches": 0,
+   "risk_tier_mismatches": 0,
+   "analyse_logic_identical": true
+  }
+ },
+ "fields": [
+  "profile_id",
+  "segment",
+  "reorder",
+  "prob",
+  "items",
+  "tier"
+ ]
+}

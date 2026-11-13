@@ -1,0 +1,381 @@
+{
+ "verdict": "PASS",
+ "summary": {
+  "PASS": 24,
+  "FAIL": 0
+ },
+ "date": "05 Nov 2026, 22:02",
+ "url": "http://localhost:8599",
+ "browser": "Chromium 153.0.8010.12 (headless, Playwright)",
+ "reference": "validation/baselines/batch_export_v4_final_polish",
+ "scope": "Automated, browser-level: real 'Browse files' click and browser file chooser (answered by Playwright, as a headless browser draws no operating-system dialog), real upload, scoring, rendering and browser download. Not a human, on-screen manual test.",
+ "observations": [
+  "In the scored file, a cell that could not be read as a number is written back empty (the app converts the required columns to numbers before scoring), so the original text (e.g. 'abc') is not echoed; the row itself is kept and flagged 'Not scored — missing / non-numeric value'. Existing behaviour, not changed."
+ ],
+ "checks": [
+  {
+   "case": "template",
+   "check": "Template downloaded through the browser",
+   "result": "PASS",
+   "detail": "/home/claude/final/QuickBite_Final_Submission/validation/browser_upload_test/downloads/quickbite_scoring_template.csv"
+  },
+  {
+   "case": "template",
+   "check": "Template has diner_id + the 7 required columns, 11 rows, 2 under-18",
+   "result": "PASS",
+   "detail": {
+    "columns": [
+     "diner_id",
+     "age",
+     "orders_per_month",
+     "avg_order_value",
+     "avg_items_per_order",
+     "days_since_last_order",
+     "discount_rate",
+     "total_spend"
+    ],
+    "rows": 11,
+    "under18": 2
+   }
+  },
+  {
+   "case": "mixed_valid_and_invalid",
+   "check": "No exception shown in the browser",
+   "result": "PASS",
+   "detail": []
+  },
+  {
+   "case": "mixed_valid_and_invalid",
+   "check": "Scored CSV downloaded through the browser",
+   "result": "PASS",
+   "detail": "/home/claude/final/QuickBite_Final_Submission/validation/browser_upload_test/downloads/mixed_valid_and_invalid_scored.csv"
+  },
+  {
+   "case": "mixed_valid_and_invalid",
+   "check": "Every uploaded row is in the scored file, in the same order (no row lost or added)",
+   "result": "PASS",
+   "detail": {
+    "uploaded": 16,
+    "downloaded": 16
+   }
+  },
+  {
+   "case": "mixed_valid_and_invalid",
+   "check": "Columns: every uploaded column kept with its name and order, then the documented output columns",
+   "result": "PASS",
+   "detail": [
+    "diner_id",
+    "age",
+    "orders_per_month",
+    "avg_order_value",
+    "avg_items_per_order",
+    "days_since_last_order",
+    "discount_rate",
+    "total_spend",
+    "store_note",
+    "status",
+    "segment",
+    "p_reorder",
+    "will_reorder",
+    "risk_tier",
+    "action",
+    "recommended_items",
+    "outside_training_range"
+   ]
+  },
+  {
+   "case": "mixed_valid_and_invalid",
+   "check": "Identifiers and the extra user column are preserved exactly",
+   "result": "PASS",
+   "detail": ""
+  },
+  {
+   "case": "mixed_valid_and_invalid",
+   "check": "Status per row = independent rule (scored / under 18 / missing or non-numeric)",
+   "result": "PASS",
+   "detail": []
+  },
+  {
+   "case": "mixed_valid_and_invalid",
+   "check": "Expected mix in the test file: 12 scored, 2 under-18, 2 missing / non-numeric",
+   "result": "PASS",
+   "detail": {
+    "Scored": "12",
+    "Not scored — under 18 (18+ policy)": "2",
+    "Not scored — missing / non-numeric value": "2"
+   }
+  },
+  {
+   "case": "mixed_valid_and_invalid",
+   "check": "P(reorder) is numeric and within [0, 1] for every scored row",
+   "result": "PASS",
+   "detail": [
+    0.7194380450326975,
+    0.9943324704518176,
+    0.5426225067869255,
+    0.9939441819594403,
+    0.9672472638706693,
+    0.5475533649723551,
+    0.9897208422394776,
+    0.2581830466787472,
+    0.9811510021050796,
+    0.9609320107045226,
+    0.039650063416240146,
+    0.022026259891872204
+   ]
+  },
+  {
+   "case": "mixed_valid_and_invalid",
+   "check": "P(reorder) equals the independent recomputation from food_models.joblib (exact after the CSV round trip)",
+   "result": "PASS",
+   "detail": "max |difference| = 0.0"
+  },
+  {
+   "case": "mixed_valid_and_invalid",
+   "check": "Segment names equal the independent recomputation",
+   "result": "PASS",
+   "detail": [
+    [
+     "Premium Foodies",
+     "Premium Foodies"
+    ],
+    [
+     "Budget Students",
+     "Budget Students"
+    ],
+    [
+     "Premium Foodies",
+     "Premium Foodies"
+    ],
+    [
+     "Budget Students",
+     "Budget Students"
+    ],
+    [
+     "Budget Students",
+     "Budget Students"
+    ],
+    [
+     "Premium Foodies",
+     "Premium Foodies"
+    ],
+    [
+     "Budget Students",
+     "Budget Students"
+    ],
+    [
+     "Family Feasters",
+     "Family Feasters"
+    ],
+    [
+     "Budget Students",
+     "Budget Students"
+    ],
+    [
+     "Budget Students",
+     "Budget Students"
+    ],
+    [
+     "Family Feasters",
+     "Family Feasters"
+    ],
+    [
+     "Family Feasters",
+     "Family Feasters"
+    ]
+   ]
+  },
+  {
+   "case": "mixed_valid_and_invalid",
+   "check": "Predicted class (Yes / At risk) equals clf.predict",
+   "result": "PASS",
+   "detail": ""
+  },
+  {
+   "case": "mixed_valid_and_invalid",
+   "check": "Risk tier equals the documented cut-offs (75 / 50 / 25 %) applied to the recomputed probability",
+   "result": "PASS",
+   "detail": [
+    [
+     "Moderate retention likelihood",
+     "Moderate retention likelihood"
+    ],
+    [
+     "High retention likelihood",
+     "High retention likelihood"
+    ],
+    [
+     "Moderate retention likelihood",
+     "Moderate retention likelihood"
+    ],
+    [
+     "High retention likelihood",
+     "High retention likelihood"
+    ],
+    [
+     "High retention likelihood",
+     "High retention likelihood"
+    ],
+    [
+     "Moderate retention likelihood",
+     "Moderate retention likelihood"
+    ],
+    [
+     "High retention likelihood",
+     "High retention likelihood"
+    ],
+    [
+     "At-risk",
+     "At-risk"
+    ],
+    [
+     "High retention likelihood",
+     "High retention likelihood"
+    ],
+    [
+     "High retention likelihood",
+     "High retention likelihood"
+    ],
+    [
+     "High churn risk",
+     "High churn risk"
+    ],
+    [
+     "High churn risk",
+     "High churn risk"
+    ]
+   ]
+  },
+  {
+   "case": "mixed_valid_and_invalid",
+   "check": "Every scored row has an action and as many recommended items as its segment's list",
+   "result": "PASS",
+   "detail": ""
+  },
+  {
+   "case": "mixed_valid_and_invalid",
+   "check": "Rows not scored carry no segment, probability or tier (flagged, not guessed)",
+   "result": "PASS",
+   "detail": [
+    {
+     "diner_id": "D1110",
+     "status": "Not scored — under 18 (18+ policy)",
+     "segment": NaN,
+     "p_reorder": NaN,
+     "risk_tier": NaN
+    },
+    {
+     "diner_id": "D1102",
+     "status": "Not scored — under 18 (18+ policy)",
+     "segment": NaN,
+     "p_reorder": NaN,
+     "risk_tier": NaN
+    },
+    {
+     "diner_id": "BAD_NONNUMERIC",
+     "status": "Not scored — missing / non-numeric value",
+     "segment": NaN,
+     "p_reorder": NaN,
+     "risk_tier": NaN
+    },
+    {
+     "diner_id": "BAD_BLANK",
+     "status": "Not scored — missing / non-numeric value",
+     "segment": NaN,
+     "p_reorder": NaN,
+     "risk_tier": NaN
+    }
+   ]
+  },
+  {
+   "case": "mixed_valid_and_invalid",
+   "check": "KPI cards match the file (rows uploaded, scored, under 18, predicted at risk)",
+   "result": "PASS",
+   "detail": {
+    "Rows uploaded": "16",
+    "Scored": "12",
+    "Not scored — under 18": "2",
+    "Predicted at risk": "3",
+    "Mean P(reorder)": "67%"
+   }
+  },
+  {
+   "case": "missing_required_column",
+   "check": "Clear error naming the missing column; nothing scored or offered for download",
+   "result": "PASS",
+   "detail": [
+    "Missing required columns: discount_rate"
+   ]
+  },
+  {
+   "case": "empty_0_bytes",
+   "check": "Clear 'could not read the file' message; no crash, nothing scored",
+   "result": "PASS",
+   "detail": [
+    "Could not read the file: No columns to parse from file"
+   ]
+  },
+  {
+   "case": "header_only",
+   "check": "Header-only file: no crash; 0 rows uploaded, 0 scored",
+   "result": "PASS",
+   "detail": {
+    "kpis": {
+     "Rows uploaded": "0",
+     "Scored": "0"
+    },
+    "alerts": [],
+    "exceptions": []
+   }
+  },
+  {
+   "case": "under18_only",
+   "check": "Under-18 rows flagged 'Not scored — under 18 (18+ policy)', kept in the file, no prediction",
+   "result": "PASS",
+   "detail": {
+    "kpis": {
+     "Rows uploaded": "2",
+     "Scored": "0",
+     "Not scored — under 18": "2"
+    },
+    "rows": [
+     {
+      "diner_id": "D1110",
+      "status": "Not scored — under 18 (18+ policy)"
+     },
+     {
+      "diner_id": "D1102",
+      "status": "Not scored — under 18 (18+ policy)"
+     }
+    ]
+   }
+  },
+  {
+   "case": "reference",
+   "check": "Browser download quickbite_scoring_template.csv byte-identical to the reference (batch_export_v4_final_polish/template.csv)",
+   "result": "PASS",
+   "detail": {
+    "bytes_now": 485,
+    "bytes_reference": 485
+   }
+  },
+  {
+   "case": "reference",
+   "check": "Browser download mixed_valid_and_invalid_scored.csv byte-identical to the reference (batch_export_v4_final_polish/scored_mixed_valid_and_invalid.csv)",
+   "result": "PASS",
+   "detail": {
+    "bytes_now": 2884,
+    "bytes_reference": 2884
+   }
+  },
+  {
+   "case": "reference",
+   "check": "Browser download under18_only_scored.csv byte-identical to the reference (batch_export_v4_final_polish/scored_under18_only.csv)",
+   "result": "PASS",
+   "detail": {
+    "bytes_now": 340,
+    "bytes_reference": 340
+   }
+  }
+ ]
+}

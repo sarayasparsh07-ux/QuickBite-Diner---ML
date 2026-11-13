@@ -1,0 +1,198 @@
+{
+ "contrast": {
+  "text": {
+   "bg": 17.63,
+   "sunken": 16.19,
+   "card": 14.84,
+   "elev": 13.27
+  },
+  "text2": {
+   "bg": 9.21,
+   "sunken": 8.46,
+   "card": 7.75,
+   "elev": 6.94
+  },
+  "text3": {
+   "bg": 6.55,
+   "sunken": 6.01,
+   "card": 5.51,
+   "elev": 4.93
+  },
+  "teal": {
+   "bg": 11.73,
+   "sunken": 10.77,
+   "card": 9.87,
+   "elev": 8.83
+  },
+  "ice": {
+   "bg": 13.65,
+   "sunken": 12.54,
+   "card": 11.49,
+   "elev": 10.28
+  },
+  "blue": {
+   "bg": 5.58,
+   "sunken": 5.12,
+   "card": 4.7,
+   "elev": 4.2
+  },
+  "orchid": {
+   "bg": 8.1,
+   "sunken": 7.44,
+   "card": 6.82,
+   "elev": 6.1
+  },
+  "amber": {
+   "bg": 12.29,
+   "sunken": 11.29,
+   "card": 10.35,
+   "elev": 9.25
+  },
+  "coral": {
+   "bg": 7.75,
+   "sunken": 7.12,
+   "card": 6.52,
+   "elev": 5.83
+  },
+  "focus": {
+   "bg": 7.15,
+   "sunken": 6.57,
+   "card": 6.02,
+   "elev": 5.38
+  },
+  "primary": {
+   "bg": 3.83,
+   "sunken": 3.52,
+   "card": 3.22,
+   "elev": 2.88
+  },
+  "white on primary (button label)": 4.95,
+  "slider read-out: primary on bg (received)": 3.83,
+  "slider read-out: focus on bg (final)": 7.15
+ },
+ "segments": {
+  "normal": {
+   "worst_pair": "Family Feasters vs Budget Students",
+   "worst_deltaE00": 26.8,
+   "pairs": {
+    "Premium Foodies vs Family Feasters": 58.5,
+    "Premium Foodies vs Budget Students": 41.3,
+    "Family Feasters vs Budget Students": 26.8
+   }
+  },
+  "protanopia": {
+   "worst_pair": "Family Feasters vs Budget Students",
+   "worst_deltaE00": 26.0,
+   "pairs": {
+    "Premium Foodies vs Family Feasters": 58.7,
+    "Premium Foodies vs Budget Students": 39.2,
+    "Family Feasters vs Budget Students": 26.0
+   }
+  },
+  "deuteranopia": {
+   "worst_pair": "Family Feasters vs Budget Students",
+   "worst_deltaE00": 26.9,
+   "pairs": {
+    "Premium Foodies vs Family Feasters": 63.5,
+    "Premium Foodies vs Budget Students": 42.6,
+    "Family Feasters vs Budget Students": 26.9
+   }
+  },
+  "tritanopia": {
+   "worst_pair": "Family Feasters vs Budget Students",
+   "worst_deltaE00": 21.2,
+   "pairs": {
+    "Premium Foodies vs Family Feasters": 55.3,
+    "Premium Foodies vs Budget Students": 44.0,
+    "Family Feasters vs Budget Students": 21.2
+   }
+  },
+  "greyscale": {
+   "worst_pair": "Premium Foodies vs Budget Students",
+   "worst_deltaE00": 2.5,
+   "pairs": {
+    "Premium Foodies vs Family Feasters": 19.6,
+    "Premium Foodies vs Budget Students": 2.5,
+    "Family Feasters vs Budget Students": 22.0
+   }
+  }
+ },
+ "tiers": {
+  "normal": {
+   "worst_pair": "High retention vs Moderate",
+   "worst_deltaE00": 31.0,
+   "pairs": {
+    "High retention vs Moderate": 31.0,
+    "High retention vs At-risk": 39.1,
+    "High retention vs High churn risk": 67.7,
+    "Moderate vs At-risk": 38.7,
+    "Moderate vs High churn risk": 32.3,
+    "At-risk vs High churn risk": 39.2
+   }
+  },
+  "protanopia": {
+   "worst_pair": "Moderate vs High churn risk",
+   "worst_deltaE00": 13.2,
+   "pairs": {
+    "High retention vs Moderate": 26.0,
+    "High retention vs At-risk": 17.3,
+    "High retention vs High churn risk": 18.5,
+    "Moderate vs At-risk": 39.0,
+    "Moderate vs High churn risk": 13.2,
+    "At-risk vs High churn risk": 26.5
+   }
+  },
+  "deuteranopia": {
+   "worst_pair": "High retention vs High churn risk",
+   "worst_deltaE00": 13.6,
+   "pairs": {
+    "High retention vs Moderate": 17.8,
+    "High retention vs At-risk": 24.1,
+    "High retention vs High churn risk": 13.6,
+    "Moderate vs At-risk": 41.7,
+    "Moderate vs High churn risk": 26.9,
+    "At-risk vs High churn risk": 16.6
+   }
+  },
+  "tritanopia": {
+   "worst_pair": "At-risk vs High churn risk",
+   "worst_deltaE00": 16.7,
+   "pairs": {
+    "High retention vs Moderate": 22.8,
+    "High retention vs At-risk": 50.2,
+    "High retention vs High churn risk": 68.3,
+    "Moderate vs At-risk": 36.9,
+    "Moderate vs High churn risk": 34.2,
+    "At-risk vs High churn risk": 16.7
+   }
+  },
+  "greyscale": {
+   "worst_pair": "High retention vs At-risk",
+   "worst_deltaE00": 1.1,
+   "pairs": {
+    "High retention vs Moderate": 14.4,
+    "High retention vs At-risk": 1.1,
+    "High retention vs High churn risk": 10.1,
+    "Moderate vs At-risk": 15.5,
+    "Moderate vs High churn risk": 4.3,
+    "At-risk vs High churn risk": 11.2
+   }
+  }
+ },
+ "previous": {
+  "segments (received)": {
+   "normal": 24.1,
+   "protanopia": 7.2,
+   "deuteranopia": 12.5,
+   "tritanopia": 21.2,
+   "greyscale": 9.6
+  },
+  "tiers (received)": {
+   "normal": 28.4,
+   "protanopia": 17.3,
+   "deuteranopia": 13.6,
+   "tritanopia": 14.0,
+   "greyscale": 1.1
+  }
+ }
+}

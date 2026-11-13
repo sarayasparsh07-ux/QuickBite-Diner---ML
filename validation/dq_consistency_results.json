@@ -1,0 +1,560 @@
+{
+ "checks": [
+  {
+   "check": "notebook: DQ-01 and DQ-05 present exactly once",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {
+    "DQ-01": 1,
+    "DQ-05": 1
+   }
+  },
+  {
+   "check": "csv: DQ-01 and DQ-05 present exactly once",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {
+    "DQ-01": 1,
+    "DQ-05": 1
+   }
+  },
+  {
+   "check": "markdown: DQ-01 and DQ-05 present exactly once",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {
+    "DQ-01": 1,
+    "DQ-05": 1
+   }
+  },
+  {
+   "check": "bundle: DQ-01 and DQ-05 present exactly once",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {
+    "DQ-01": 1,
+    "DQ-05": 1
+   }
+  },
+  {
+   "check": "dashboard: DQ-01 and DQ-05 present exactly once",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {
+    "DQ-01": 1,
+    "DQ-05": 1
+   }
+  },
+  {
+   "check": "DQ-01: identical in notebook, CSV, Markdown report, analytics bundle and Governance dashboard",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {}
+  },
+  {
+   "check": "DQ-05: identical in notebook, CSV, Markdown report, analytics bundle and Governance dashboard",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {}
+  },
+  {
+   "check": "DQ-01: identifier, dataset, issue, quantity (D1052, age 9), classification and treatment unchanged",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {}
+  },
+  {
+   "check": "DQ-01: names the 368 training observations (not 'trained on 460')",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {
+    "text": "Classifier-eligible population: 460 adult diners (368 training observations and 92 held-out test observations)",
+    "expected_train": 368
+   }
+  },
+  {
+   "check": "DQ-01: names the 92 held-out test observations",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {
+    "text": "Classifier-eligible population: 460 adult diners (368 training observations and 92 held-out test observations)",
+    "expected_test": 92
+   }
+  },
+  {
+   "check": "DQ-01: names the 460 classifier-eligible adults as eligibility, not fitting",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {
+    "text": "Classifier-eligible population: 460 adult diners (368 training observations and 92 held-out test observations)",
+    "expected_eligible": 460
+   }
+  },
+  {
+   "check": "DQ-05: identifier, dataset, classification and impact unchanged",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {}
+  },
+  {
+   "check": "DQ-05: dashboard input limits on the Governance page = app.py INPUT_SPEC",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {
+    "governance": {
+     "orders_per_month": [
+      1.0,
+      20.0
+     ],
+     "avg_order_value": [
+      15.0,
+      250.0
+     ],
+     "avg_items_per_order": [
+      1.0,
+      10.0
+     ],
+     "days_since_last_order": [
+      0.0,
+      60.0
+     ],
+     "discount_rate": [
+      0.0,
+      1.0
+     ],
+     "age": [
+      18.0,
+      70.0
+     ],
+     "total_spend": [
+      50.0,
+      20000.0
+     ]
+    },
+    "app.py": {
+     "age": [
+      18.0,
+      70.0
+     ],
+     "orders_per_month": [
+      1.0,
+      20.0
+     ],
+     "avg_order_value": [
+      15.0,
+      250.0
+     ],
+     "avg_items_per_order": [
+      1.0,
+      10.0
+     ],
+     "days_since_last_order": [
+      0.0,
+      60.0
+     ],
+     "discount_rate": [
+      0.0,
+      1.0
+     ],
+     "total_spend": [
+      50.0,
+      20000.0
+     ]
+    }
+   }
+  },
+  {
+   "check": "DQ-05: the controls are exactly the 7 classifier input features",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {
+    "controls": [
+     "age",
+     "avg_items_per_order",
+     "avg_order_value",
+     "days_since_last_order",
+     "discount_rate",
+     "orders_per_month",
+     "total_spend"
+    ],
+    "classifier_features": [
+     "age",
+     "avg_items_per_order",
+     "avg_order_value",
+     "days_since_last_order",
+     "discount_rate",
+     "orders_per_month",
+     "total_spend"
+    ]
+   }
+  },
+  {
+   "check": "DQ-05: Quantity equals the independent calculation in every representation (computed: 6 of 7 classifier input controls; 1 control(s) within / equal)",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {
+    "expected": "6 of 7 classifier input controls",
+    "found": {
+     "notebook": "6 of 7 classifier input controls",
+     "csv": "6 of 7 classifier input controls",
+     "markdown": "6 of 7 classifier input controls",
+     "bundle": "6 of 7 classifier input controls",
+     "dashboard": "6 of 7 classifier input controls"
+    },
+    "counted": [
+     "age",
+     "avg_order_value",
+     "avg_items_per_order",
+     "days_since_last_order",
+     "discount_rate",
+     "total_spend"
+    ],
+    "not_counted": [
+     "orders_per_month"
+    ]
+   }
+  },
+  {
+   "check": "DQ-05: calculation agrees with the documented expectation (7 controls · 6 outside · 1 within / equal: orders_per_month)",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {
+    "controls": 7,
+    "outside": 6,
+    "inside_or_equal": 1
+   }
+  },
+  {
+   "check": "DQ-05: explanation table in the data-quality report = the independent calculation (row by row and result)",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {
+    "report": {
+     "rows": {
+      "orders_per_month": "No",
+      "avg_order_value": "Yes",
+      "avg_items_per_order": "Yes",
+      "days_since_last_order": "Yes",
+      "discount_rate": "Yes",
+      "age": "Yes",
+      "total_spend": "Yes"
+     },
+     "result": "Result: **6 of 7 classifier input controls** extend beyond the observed adult classifier range; `orders_per_month` is not counted (its permitted range 1–20 exactly matches the observed 1–20)."
+    },
+    "calculated": {
+     "age": "Yes",
+     "orders_per_month": "No",
+     "avg_order_value": "Yes",
+     "avg_items_per_order": "Yes",
+     "days_since_last_order": "Yes",
+     "discount_rate": "Yes",
+     "total_spend": "Yes"
+    }
+   }
+  },
+  {
+   "check": "DQ-05: quoted range values unchanged and equal to the observed adult maxima / dashboard input limits",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {
+    "issue": "Dashboard inputs may fall outside the observed adult classifier range (input limits exceed it, e.g. recency ≤60 vs max 34; spend ≤20,000 vs max 1,490)",
+    "baseline": "Dashboard inputs may fall outside the observed adult classifier range (input limits exceed it, e.g. recency ≤60 vs max 34; spend ≤20,000 vs max 1,490)"
+   }
+  },
+  {
+   "check": "DQ-05: observed adult classifier range terminology; reference population = the 460 eligible adults",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {
+    "issue": "Dashboard inputs may fall outside the observed adult classifier range (input limits exceed it, e.g. recency ≤60 vs max 34; spend ≤20,000 vs max 1,490)",
+    "treatment": "Values outside it remain permitted by the dashboard input limits (INPUT_SPEC); the dashboard shows an observed adult reference-range warning when an input falls outside the feature range calculated from the 460 adult classifier-eligible diners.",
+    "obsolete_phrase": null
+   }
+  },
+  {
+   "check": "Observed adult classifier range = min–max of the 460 adult diners, identical to the baseline",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {
+    "now": {
+     "orders_per_month": [
+      1.0,
+      20.0
+     ],
+     "avg_order_value": [
+      29.5,
+      218.66
+     ],
+     "avg_items_per_order": [
+      1.0,
+      9.0
+     ],
+     "days_since_last_order": [
+      0.0,
+      34.0
+     ],
+     "discount_rate": [
+      0.0,
+      0.86
+     ],
+     "age": [
+      18.0,
+      52.0
+     ],
+     "total_spend": [
+      134.04,
+      1490.17
+     ]
+    },
+    "baseline": {
+     "orders_per_month": [
+      1.0,
+      20.0
+     ],
+     "avg_order_value": [
+      29.5,
+      218.66
+     ],
+     "avg_items_per_order": [
+      1.0,
+      9.0
+     ],
+     "days_since_last_order": [
+      0.0,
+      34.0
+     ],
+     "discount_rate": [
+      0.0,
+      0.86
+     ],
+     "age": [
+      18.0,
+      52.0
+     ],
+     "total_spend": [
+      134.04,
+      1490.17
+     ]
+    },
+    "recount": {
+     "age": [
+      18.0,
+      52.0
+     ],
+     "orders_per_month": [
+      1.0,
+      20.0
+     ],
+     "avg_order_value": [
+      29.5,
+      218.66
+     ],
+     "avg_items_per_order": [
+      1.0,
+      9.0
+     ],
+     "days_since_last_order": [
+      0.0,
+      34.0
+     ],
+     "discount_rate": [
+      0.0,
+      0.86
+     ],
+     "total_spend": [
+      134.04,
+      1490.17
+     ]
+    }
+   }
+  },
+  {
+   "check": "Validator's 7 classifier features = food_models.joblib features + age + total_spend",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {
+    "food_models": [
+     "orders_per_month",
+     "avg_order_value",
+     "avg_items_per_order",
+     "days_since_last_order",
+     "discount_rate"
+    ]
+   }
+  },
+  {
+   "check": "Executed notebook cells == cells generated from build/notebook_source.py",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": {
+    "cells_source": 91,
+    "cells_notebook": 91,
+    "differing_cells": []
+   }
+  },
+  {
+   "check": "Batch CSV export schema identical to the reference (incl. outside_training_range)",
+   "result": "PASS",
+   "message": "PASS",
+   "detail": null
+  }
+ ],
+ "passed": true,
+ "counts": {
+  "total": 480,
+  "eligible": 460,
+  "train": 368,
+  "test": 92,
+  "under18": 20
+ },
+ "dq05_calculation": {
+  "rows": [
+   {
+    "feature": "age",
+    "ui": [
+     18.0,
+     70.0
+    ],
+    "observed": [
+     18.0,
+     52.0
+    ],
+    "outside": true,
+    "lower_outside": false,
+    "upper_outside": true
+   },
+   {
+    "feature": "orders_per_month",
+    "ui": [
+     1.0,
+     20.0
+    ],
+    "observed": [
+     1.0,
+     20.0
+    ],
+    "outside": false,
+    "lower_outside": false,
+    "upper_outside": false
+   },
+   {
+    "feature": "avg_order_value",
+    "ui": [
+     15.0,
+     250.0
+    ],
+    "observed": [
+     29.5,
+     218.66
+    ],
+    "outside": true,
+    "lower_outside": true,
+    "upper_outside": true
+   },
+   {
+    "feature": "avg_items_per_order",
+    "ui": [
+     1.0,
+     10.0
+    ],
+    "observed": [
+     1.0,
+     9.0
+    ],
+    "outside": true,
+    "lower_outside": false,
+    "upper_outside": true
+   },
+   {
+    "feature": "days_since_last_order",
+    "ui": [
+     0.0,
+     60.0
+    ],
+    "observed": [
+     0.0,
+     34.0
+    ],
+    "outside": true,
+    "lower_outside": false,
+    "upper_outside": true
+   },
+   {
+    "feature": "discount_rate",
+    "ui": [
+     0.0,
+     1.0
+    ],
+    "observed": [
+     0.0,
+     0.86
+    ],
+    "outside": true,
+    "lower_outside": false,
+    "upper_outside": true
+   },
+   {
+    "feature": "total_spend",
+    "ui": [
+     50.0,
+     20000.0
+    ],
+    "observed": [
+     134.04,
+     1490.17
+    ],
+    "outside": true,
+    "lower_outside": true,
+    "upper_outside": true
+   }
+  ],
+  "controls": 7,
+  "outside": 6,
+  "inside_or_equal": 1,
+  "complete": true,
+  "quantity": "6 of 7 classifier input controls"
+ },
+ "before_after": {
+  "DQ-01": {
+   "before": {
+    "ID": "DQ-01",
+    "Dataset": "diners",
+    "Issue": "Age below plausible account-holder age",
+    "Quantity": "1 diner (D1052, age 9)",
+    "Classification": "Invalid",
+    "Treatment": "Excluded from the classifier and the app's age input (under-18 policy). Retained for clustering & baskets (age not used there). No imputation.",
+    "Impact": "Classifier-eligible population: 460 adult diners (368 training observations and 92 held-out test observations)"
+   },
+   "after": {
+    "ID": "DQ-01",
+    "Dataset": "diners",
+    "Issue": "Age below plausible account-holder age",
+    "Quantity": "1 diner (D1052, age 9)",
+    "Classification": "Invalid",
+    "Treatment": "Excluded from the classifier and the app's age input (under-18 policy). Retained for clustering & baskets (age not used there). No imputation.",
+    "Impact": "Classifier-eligible population: 460 adult diners (368 training observations and 92 held-out test observations)"
+   }
+  },
+  "DQ-05": {
+   "before": {
+    "ID": "DQ-05",
+    "Dataset": "diners",
+    "Issue": "Dashboard inputs may fall outside the observed adult classifier range (input limits exceed it, e.g. recency ≤60 vs max 34; spend ≤20,000 vs max 1,490)",
+    "Quantity": "4 inputs",
+    "Classification": "Application constraint",
+    "Treatment": "Dashboard shows an observed adult reference-range warning when an input falls outside the feature range calculated from the 460 adult classifier-eligible diners.",
+    "Impact": "Dashboard governance"
+   },
+   "after": {
+    "ID": "DQ-05",
+    "Dataset": "diners",
+    "Issue": "Dashboard inputs may fall outside the observed adult classifier range (input limits exceed it, e.g. recency ≤60 vs max 34; spend ≤20,000 vs max 1,490)",
+    "Quantity": "6 of 7 classifier input controls",
+    "Classification": "Application constraint",
+    "Treatment": "Values outside it remain permitted by the dashboard input limits (INPUT_SPEC); the dashboard shows an observed adult reference-range warning when an input falls outside the feature range calculated from the 460 adult classifier-eligible diners.",
+    "Impact": "Dashboard governance"
+   }
+  }
+ },
+ "baseline": "bundle_v6_dq_correction.json.gz"
+}

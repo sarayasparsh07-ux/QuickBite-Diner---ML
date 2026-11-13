@@ -1,0 +1,3 @@
+diner_id,age,orders_per_month,avg_order_value,avg_items_per_order,days_since_last_order,discount_rate,total_spend,status,segment,p_reorder,will_reorder,risk_tier,action,recommended_items
+D1110,17,14,43.34,2,8,0.69,532.56,Not scored — under 18 (18+ policy),,,,,,
+D1102,14,15,44.1,2,8,0.63,580.94,Not scored — under 18 (18+ policy),,,,,,

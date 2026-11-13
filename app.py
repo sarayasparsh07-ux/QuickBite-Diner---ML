@@ -12,73 +12,149 @@
 # ------------------------------------------------------------
 from pathlib import Path
 
+import re as _re
+import textwrap
+
 import joblib
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.io as pio
 import streamlit as st
 
-st.set_page_config(page_title="QuickBite Diner Intelligence", page_icon="🍔", layout="wide",
+st.set_page_config(page_title="QuickBite | QuantFin AI Studio", page_icon="🍔", layout="wide",
                    initial_sidebar_state="expanded")
 
 BASE_DIR = Path(__file__).resolve().parent
 
 # ════════════════════════════════════════════════════════════
-# 1. Visual system
+# 1. QuantFin AI Studio — design system (presentation layer only)
 # ════════════════════════════════════════════════════════════
-BG, PANEL, PANEL2 = "#0A1324", "#101D33", "#16274A"
-LINE, GRID = "rgba(148,163,184,0.18)", "rgba(148,163,184,0.10)"
-TEXT, MUTED, FAINT = "#E6ECF5", "#94A3B8", "#64748B"
-GOLD, POS, CAUTION, RISK, STEEL = "#C9A227", "#2BB39A", "#E0A43A", "#E05A67", "#5B8FD6"
-FONT = "IBM Plex Sans, Inter, -apple-system, Segoe UI, sans-serif"
-SEG_COLORS_DARK = {"Premium Foodies": "#D4B04A", "Family Feasters": "#9A8BDB", "Budget Students": "#5B9BE0"}
-TIER_COLORS = {"High retention likelihood": POS, "Moderate retention likelihood": "#7FC4B4",
-               "At-risk": CAUTION, "High churn risk": RISK}
+# Every colour token lives here, once. CSS reads them as custom properties (:root) and the Plotly template reuses them.
+# .streamlit/config.toml carries the same values for Streamlit's native widgets. No other hex colours are used for
+# meaning; translucent variants (rgba) are only ever alpha versions of these tokens.
+T = dict(
+    bg0="#0B1020",      # Background — main page
+    bg1="#101A2D",      # Sunken surface — sidebar, secondary regions
+    card="#152238",     # Primary surface — main cards
+    elev="#1B2B43",     # Elevated surface — hover states, elevated cards, tooltips
+    border="#2B405C",   # Border — card boundaries, separators
+    text="#F4F7FC",     # Primary text — headings, KPI values
+    text2="#A8B6CB",    # Secondary text — body text, chart labels
+    text3="#8A99B0",    # Tertiary text — captions, secondary labels; also the neutral "slate" series colour
+    teal="#45E3C1",     # Positive — favourable outcomes
+    cyan="#A5E4FF",     # Activity (ice) — customer activity and volume
+    blue="#5B84FF",     # Analytical blue — analytical chart marks
+    violet="#D98CF2",   # AI / ML (orchid) — model-generated insights
+    amber="#FFC76B",    # Caution — warnings, moderate risk
+    coral="#FF7D91",    # High risk — churn exposure, adverse outcomes
+    primary="#3A66E8",  # Primary action — buttons, selection controls
+    focus="#789BFF",    # Link / focus — links, keyboard focus ring
+)
+T["muted"], T["faint"] = T["text2"], T["text3"]           # aliases used by the page code and the stylesheet
+FONT = "Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
 
-st.markdown(f"""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap');
-html, body, [class*="css"], .stMarkdown, .stText, button, input, select, textarea {{ font-family: {FONT}; }}
-.block-container {{ padding-top: 1.6rem; padding-bottom: 3rem; max-width: 1440px; }}
-[data-testid="stSidebar"] {{ background: #081021; border-right: 1px solid {LINE}; }}
-[data-testid="stSidebar"] .stRadio label p {{ font-size: 0.92rem; }}
-h1, h2, h3 {{ letter-spacing: -0.01em; }}
-hr {{ border-color: {LINE}; }}
-.qb-brand {{ font-weight: 700; letter-spacing: .14em; font-size: .78rem; color: {GOLD}; text-transform: uppercase; }}
-.qb-title {{ font-size: 1.85rem; font-weight: 700; color: {TEXT}; margin: .1rem 0 .15rem 0; }}
-.qb-sub {{ color: {MUTED}; font-size: .95rem; margin-bottom: .6rem; }}
-.qb-kicker {{ color: {GOLD}; font-size: .72rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; margin-top: 1.4rem; }}
-.qb-h {{ font-size: 1.15rem; font-weight: 600; color: {TEXT}; margin: .15rem 0 .2rem 0; padding-bottom: .35rem; border-bottom: 1px solid {LINE}; }}
-.qb-desc {{ color: {MUTED}; font-size: .88rem; margin: .35rem 0 .7rem 0; }}
-.kpi {{ background: {PANEL}; border: 1px solid {LINE}; border-radius: 6px; padding: 14px 16px 12px 16px; height: 100%; min-height: 112px; }}
-.kpi-label {{ color: {MUTED}; font-size: .70rem; font-weight: 600; letter-spacing: .10em; text-transform: uppercase; }}
-.kpi-value {{ color: {TEXT}; font-size: 1.62rem; font-weight: 600; margin-top: 6px; font-variant-numeric: tabular-nums; line-height: 1.15; }}
-.kpi-value.sm {{ font-size: 1.18rem; }}
-.kpi-sub {{ color: {MUTED}; font-size: .80rem; margin-top: 6px; line-height: 1.35; }}
-.tone-pos {{ color: {POS}; }} .tone-caution {{ color: {CAUTION}; }} .tone-risk {{ color: {RISK}; }} .tone-gold {{ color: {GOLD}; }}
-.note {{ border-left: 3px solid {STEEL}; background: rgba(91,143,214,0.08); padding: 10px 14px; border-radius: 0 6px 6px 0;
-        color: {TEXT}; font-size: .88rem; margin: .4rem 0 .8rem 0; line-height: 1.5; }}
-.note.caution {{ border-color: {CAUTION}; background: rgba(224,164,58,0.08); }}
-.note.risk {{ border-color: {RISK}; background: rgba(224,90,103,0.08); }}
-.note.pos {{ border-color: {POS}; background: rgba(43,179,154,0.08); }}
-.note.gold {{ border-color: {GOLD}; background: rgba(201,162,39,0.07); }}
-.narr {{ background: {PANEL}; border: 1px solid {LINE}; border-radius: 6px; padding: 16px 20px; line-height: 1.65; font-size: .93rem; }}
-.narr b {{ color: {GOLD}; font-weight: 600; }}
-.chip {{ display: inline-block; padding: 4px 11px; margin: 0 6px 6px 0; border-radius: 999px; border: 1px solid {LINE};
-        background: {PANEL2}; font-size: .84rem; color: {TEXT}; }}
-.badge {{ display: inline-block; padding: 2px 9px; border-radius: 4px; font-size: .72rem; font-weight: 600; letter-spacing: .06em; }}
-.b-pass {{ background: rgba(43,179,154,.15); color: {POS}; border: 1px solid rgba(43,179,154,.4); }}
-.b-review {{ background: rgba(224,164,58,.13); color: {CAUTION}; border: 1px solid rgba(224,164,58,.4); }}
-.b-fail {{ background: rgba(224,90,103,.13); color: {RISK}; border: 1px solid rgba(224,90,103,.4); }}
-.segcard {{ background: {PANEL}; border: 1px solid {LINE}; border-top: 3px solid var(--c); border-radius: 6px; padding: 14px 16px; height: 100%; }}
-.segcard h4 {{ margin: 0 0 4px 0; font-size: 1.02rem; color: {TEXT}; }}
-.segcard .meta {{ color: {MUTED}; font-size: .80rem; margin-bottom: 8px; }}
-.segcard p {{ font-size: .85rem; color: {TEXT}; margin: 6px 0; line-height: 1.45; }}
-.segcard .lbl {{ color: {MUTED}; font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; }}
-.bigprob {{ font-size: 3.0rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }}
-.foot {{ color: {FAINT}; font-size: .76rem; margin-top: 2rem; border-top: 1px solid {LINE}; padding-top: .7rem; }}
-</style>
-""", unsafe_allow_html=True)
+# Semantic roles — colour is an analytical language, not decoration
+TEAL, CYAN, BLUE, VIOLET = T["teal"], T["cyan"], T["blue"], T["violet"]
+AMBER, CORAL, SLATE = T["amber"], T["coral"], T["text3"]
+PRIMARY, FOCUS = T["primary"], T["focus"]
+#   teal = favourable outcome · ice = activity/volume · blue = analytical marks · orchid = model-generated insight
+#   amber = caution / at-risk · coral = churn exposure / high risk · slate = neutral, intermediate or de-emphasised data
+
+# Short names used throughout the page code
+BG, PANEL, PANEL2 = T["bg0"], T["card"], T["elev"]
+LINE, GRID = "rgba(168,182,203,0.16)", "rgba(168,182,203,0.12)"     # alpha variants of secondary text #A8B6CB
+TEXT, MUTED, FAINT = T["text"], T["text2"], T["text3"]
+POS, CAUTION, RISK, STEEL, NEUTRAL = TEAL, AMBER, CORAL, SLATE, SLATE
+BLUE_T = BLUE   # analytical blue is 4.70:1 on the card surface, so it is also used for chart text such as the AUC label
+
+# Segment identity (who the diner is): amber / blue / ice differ in hue AND lightness (warm, dark, light), so they stay
+# distinct under protanopia, deuteranopia, tritanopia and greyscale. Every segment mark also carries its own shape.
+SEGMENT_COLORS = {
+    "Premium Foodies": "#FFC76B",
+    "Family Feasters": "#5B84FF",
+    "Budget Students": "#A5E4FF",
+}
+SEGMENT_SYMBOLS = {
+    "Premium Foodies": "circle",
+    "Family Feasters": "diamond",
+    "Budget Students": "triangle-up",
+}
+SEG_GLYPH = {"Premium Foodies": "●", "Family Feasters": "◆", "Budget Students": "▲"}   # text twin of SEGMENT_SYMBOLS
+# Retention status (how the diner is doing). Rule: a chart encodes EITHER segment identity OR risk status in colour,
+# never both, and every status also carries a glyph/label so meaning never depends on colour alone.
+TIER_COLORS = {"High retention likelihood": TEAL, "Moderate retention likelihood": SLATE,
+               "At-risk": AMBER, "High churn risk": CORAL}
+TIER_GLYPH = {"High retention likelihood": "▲", "Moderate retention likelihood": "△", "At-risk": "▽", "High churn risk": "▼"}
+# Greyscale / projector safety for stacked bars, where neither an axis label nor a marker shape names the colour:
+# amber vs ice (segments) and teal vs amber (tiers) have almost the same lightness, so one of each pair is also textured.
+SEGMENT_PATTERNS = {"Premium Foodies": "", "Family Feasters": "", "Budget Students": "."}
+TIER_PATTERNS = {"High retention likelihood": "", "Moderate retention likelihood": "", "At-risk": "/", "High churn risk": "x"}
+
+# Navigation identity: page number and icon for every existing page (page names unchanged). One accent for all page
+# chrome — analytical blue — so accent colours keep their analytical meaning instead of decorating pages.
+PAGE_META = {
+    "Executive Overview": (BLUE, "pulse"), "Customer Segmentation": (BLUE, "nodes"),
+    "Basket Intelligence": (BLUE, "basket"), "Retention & Churn": (BLUE, "target"),
+    "Retention Economics": (BLUE, "coin"), "Diner Intelligence": (BLUE, "users"),
+    "What-If Simulator": (BLUE, "flask"), "Recommendations": (BLUE, "trend"),
+    "Governance & Data Quality": (BLUE, "shield"),
+}
+
+# Original stroke icons (24-unit grid), rendered with currentColor
+ICON_PATHS = {
+    "users": '<circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9" r="2.4"/><path d="M15.8 14.2c2.3.2 3.9 1.8 4.4 4.3"/>',
+    "basket": '<path d="M4 10h16l-1.6 8.2a2 2 0 0 1-2 1.6H7.6a2 2 0 0 1-2-1.6L4 10z"/><path d="M8.5 10 11 4.5M15.5 10 13 4.5"/><path d="M9.5 14v2.5M14.5 14v2.5"/>',
+    "coin": '<circle cx="12" cy="12" r="8"/><path d="M9 9.5h4.2a1.8 1.8 0 0 1 0 3.6H10.8a1.8 1.8 0 0 0 0 3.6H15M12 7.5v1.8M12 16.7v1.8"/>',
+    "target": '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r="1"/>',
+    "alert": '<path d="M12 4 21 19.5H3L12 4z"/><path d="M12 10v4.2M12 16.8v.2"/>',
+    "pulse": '<path d="M3 12h4l2.2-5 3.6 10 2.4-5H21"/>',
+    "nodes": '<circle cx="6" cy="7" r="2.2"/><circle cx="18" cy="6" r="2.2"/><circle cx="12" cy="17.5" r="2.2"/><path d="M8 8.2 10.8 15.6M16.6 7.8l-3.4 7.8M8.2 6.8l7.6-.6"/>',
+    "shield": '<path d="M12 3.5 19 6v5.6c0 4.3-3 7.4-7 8.9-4-1.5-7-4.6-7-8.9V6l7-2.5z"/><path d="m9 12 2.1 2.1L15.2 10"/>',
+    "flask": '<path d="M9.5 3.5h5M10.5 3.5v5.2L5.2 18a1.6 1.6 0 0 0 1.4 2.4h10.8a1.6 1.6 0 0 0 1.4-2.4l-5.3-9.3V3.5"/><path d="M7.6 14h8.8"/>',
+    "trend": '<path d="M3.5 17.5 9 12l3.6 3.4L20.5 7.5"/><path d="M15.5 7.5h5v5"/>',
+    "percent": '<path d="M18.5 5.5 5.5 18.5"/><circle cx="7" cy="7" r="2.3"/><circle cx="17" cy="17" r="2.3"/>',
+    "clock": '<circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/>',
+    "layers": '<path d="M12 4 20.5 8.5 12 13 3.5 8.5 12 4z"/><path d="m3.5 12.5 8.5 4.5 8.5-4.5M3.5 16.5 12 21l8.5-4.5"/>',
+    "check": '<circle cx="12" cy="12" r="8"/><path d="m8.5 12.2 2.4 2.4 4.8-5"/>',
+    "spark": '<path d="M12 3.5v4M12 16.5v4M3.5 12h4M16.5 12h4M6 6l2.6 2.6M15.4 15.4 18 18M6 18l2.6-2.6M15.4 8.6 18 6"/>',
+    "info": '<circle cx="12" cy="12" r="8"/><path d="M12 11v5M12 8v.2"/>',
+}
+
+
+def icon(name, size=16):
+    return (f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" '
+            f'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{ICON_PATHS.get(name, ICON_PATHS["spark"])}</svg>')
+
+
+def brand_mark(size=38):
+    """Original QuickBite mark: a hexagonal 'plate' holding a rising data path with segment-coloured nodes."""
+    return f"""<svg width="{size}" height="{size}" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+<defs><linearGradient id="qfg{size}" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+<stop stop-color="{TEAL}"/><stop offset=".55" stop-color="{CYAN}"/><stop offset="1" stop-color="{VIOLET}"/></linearGradient></defs>
+<path d="M20 3.5 34.3 11.8v16.4L20 36.5 5.7 28.2V11.8L20 3.5z" stroke="url(#qfg{size})" stroke-width="1.6" fill="rgba(69,227,193,0.07)"/>
+<path d="M11.5 25.5 17 19.5l4 3.6 7.5-8.6" stroke="url(#qfg{size})" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="11.5" cy="25.5" r="1.9" fill="{TEAL}"/><circle cx="17" cy="19.5" r="1.9" fill="{CYAN}"/>
+<circle cx="21" cy="23.1" r="1.9" fill="{BLUE}"/><circle cx="28.5" cy="14.5" r="2.3" fill="{VIOLET}"/></svg>"""
+
+
+def _network_svg():
+    """Low-opacity data-network motif used behind the hero band only (inline, no external asset)."""
+    import base64
+    pts = [(40, 60), (130, 30), (210, 95), (300, 50), (380, 120), (460, 70), (95, 150), (250, 175), (350, 210), (480, 190), (170, 230)]
+    edges = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (0, 6), (6, 2), (2, 7), (7, 8), (8, 9), (4, 8), (7, 10), (6, 10), (3, 7), (5, 9)]
+    lines = "".join(f'<line x1="{pts[a][0]}" y1="{pts[a][1]}" x2="{pts[b][0]}" y2="{pts[b][1]}"/>' for a, b in edges)
+    dots = "".join(f'<circle cx="{x}" cy="{y}" r="{2.6 if i % 3 else 3.4}"/>' for i, (x, y) in enumerate(pts))
+    svg = (f'<svg xmlns="http://www.w3.org/2000/svg" width="520" height="260" viewBox="0 0 520 260">'
+           f'<g stroke="#A5E4FF" stroke-opacity="0.32" stroke-width="1">{lines}</g><g fill="#A5E4FF" fill-opacity="0.55">{dots}</g></svg>')
+    return "data:image/svg+xml;base64," + base64.b64encode(svg.encode()).decode()
+
+
+_ROOT_VARS = (":root{" + "".join(f"--{k.replace('_', '-')}:{v};" for k, v in T.items()) +
+              f"--font:{FONT};--net:url('{_network_svg()}');--line:{LINE};--grid:{GRID};--page-acc:{BLUE};" + "}")
+
+_CSS = (BASE_DIR / "assets" / "theme.css").read_text(encoding="utf-8")   # stylesheet lives in assets/theme.css
+st.html(f"<style>{_ROOT_VARS}{_CSS}</style>")
 
 
 # ── formatting helpers ──────────────────────────────────────
@@ -98,28 +174,103 @@ def pretty(item):
     return str(item).replace("_", " ").title()
 
 
-def kpi(col, label, value, sub="", tone="", small=False, help_text=None):
+# KPI accents carry meaning only: teal = favourable · amber = caution · coral = risk/exposure · orchid = model-derived.
+# Every other KPI is neutral (slate icon, no coloured edge), so a KPI row never turns into a rainbow.
+_TONE = {"pos": "teal", "risk": "coral", "caution": "amber", "gold": "neutral", "ai": "violet", "": "neutral"}
+_ICON_RULES = [("diner", "users"), ("adult", "users"), ("scope", "users"), ("row", "layers"), ("basket", "basket"), ("bundle", "basket"),
+               ("menu", "basket"), ("rule", "basket"), ("lift", "trend"), ("spend", "coin"), ("aed", "coin"), ("value", "coin"),
+               ("cost", "coin"), ("margin", "coin"), ("revenue", "coin"), ("accuracy", "target"), ("auc", "target"),
+               ("precision", "target"), ("f1", "target"), ("recall", "target"), ("churn", "alert"), ("risk", "alert"),
+               ("retention", "pulse"), ("reorder", "pulse"), ("segment", "nodes"), ("silhouette", "nodes"), ("(k)", "nodes"),
+               ("variance", "layers"), ("feature", "layers"), ("status", "shield"), ("quality", "shield"), ("training", "clock"),
+               ("success", "percent"), ("break-even", "percent"), ("χ", "spark"), ("retained", "check"), ("scored", "check")]
+# Model-derived measures (predictions and model metrics) get the orchid "model output" edge unless a status tone applies
+_MODEL_WORDS = ("accuracy", "auc", "precision", "silhouette", "p(reorder)", "predicted", "segments (k)", "variance shown",
+                "expected diners retained", "churners caught", "scored")
+
+
+def _kpi_icon(label):
+    low = label.lower()
+    return next((ic for key, ic in _ICON_RULES if key in low), "spark")
+
+
+def kpi(col, label, value, sub="", tone="", small=False, help_text=None, accent=None, icon_name=None):
+    """Executive KPI card: label → value → context. `tone` (pos/risk/caution) marks a favourable / adverse status with a
+    coloured icon and top edge; model-derived KPIs get the orchid edge; everything else stays neutral. The value itself is
+    always primary text, so colour is never the only carrier of meaning."""
+    ic = icon_name or _kpi_icon(label)
+    if accent is None:
+        accent = _TONE.get(tone, "neutral")
+        if tone in ("", "pos", "gold") and any(w in label.lower() for w in _MODEL_WORDS):
+            accent = "violet"           # a model metric is model output first; risk / caution tones still win
     title = f' title="{help_text}"' if help_text else ""
-    col.markdown(f'<div class="kpi"{title}><div class="kpi-label">{label}</div>'
-                 f'<div class="kpi-value {"sm" if small else ""} {("tone-" + tone) if tone else ""}">{value}</div>'
-                 f'<div class="kpi-sub">{sub}</div></div>', unsafe_allow_html=True)
+    col.markdown(f'<div class="qf-kpi t-{accent}"{title}><div class="k-top"><span class="k-ico">{icon(ic, 14)}</span>'
+                 f'<span class="k-label">{label}</span></div>'
+                 f'<div class="k-value {"sm" if small else ""}">{value}</div>'
+                 f'<div class="k-sub">{sub}</div></div>', unsafe_allow_html=True)
 
 
 def section(title, kicker=None, desc=None):
-    if kicker:
-        st.markdown(f'<div class="qb-kicker">{kicker}</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="qb-h">{title}</div>', unsafe_allow_html=True)
-    if desc:
-        st.markdown(f'<div class="qb-desc">{desc}</div>', unsafe_allow_html=True)
+    k = f'<div class="qf-kicker">{kicker}</div>' if kicker else ""
+    d = f'<div class="qf-desc">{desc}</div>' if desc else ""
+    st.markdown(f'<div class="qf-sec">{k}<div class="qf-h">{title}</div><div class="qf-rule"></div>{d}</div>', unsafe_allow_html=True)
+
+
+_NOTE_META = {"": ("Insight", "info"), "pos": ("Finding", "check"), "caution": ("Caution", "alert"),
+              "risk": ("Risk", "alert"), "gold": ("Key takeaway", "spark")}
 
 
 def note(text, kind=""):
-    st.markdown(f'<div class="note {kind}">{text}</div>', unsafe_allow_html=True)
+    tag, ic = _NOTE_META.get(kind, _NOTE_META[""])
+    st.markdown(f'<div class="qf-note {kind}"><span class="n-ico">{icon(ic, 16)}</span><div><span class="n-tag">{tag}</span>{text}</div></div>',
+                unsafe_allow_html=True)
 
 
 def page_header(title, sub):
-    st.markdown(f'<div class="qb-brand">QuickBite · Diner Intelligence</div><div class="qb-title">{title}</div>'
-                f'<div class="qb-sub">{sub}</div>', unsafe_allow_html=True)
+    """Studio bar (or full hero on the Overview) + numbered page header with the page's semantic accent."""
+    nav = st.session_state.get("nav", "Executive Overview")
+    names = list(PAGE_META)
+    acc, ic = PAGE_META.get(nav, (BLUE, "spark"))
+    idx = names.index(nav) + 1 if nav in names else 1
+    st.html(f"<style>:root{{--page-acc:{acc};}}</style>")
+    if nav == "Executive Overview":
+        render_hero()
+    else:
+        render_studio_bar()
+    st.markdown(f'<div class="qf-page"><div class="p-ico">{icon(ic, 20)}</div><div><div class="p-crumb">{idx:02d} / {len(names):02d} · {nav}</div>'
+                f'<div class="p-title">{title}</div><div class="p-sub">{sub}</div></div></div>', unsafe_allow_html=True)
+
+
+def _meta_chips():
+    """Metadata already present in the analytics bundle — nothing invented."""
+    if not B:
+        return []
+    m, rcv = B["meta"], B["validation"]["repeated_cv"]
+    st_ = B["dq"]["status"].title()
+    # icon colour: slate = data facts · orchid = model output · amber/teal = data-quality status (with the status word)
+    return [("users", SLATE, f"{m['n_diners']:,} diners · {m['n_baskets']:,} baskets"),
+            ("nodes", VIOLET, f"K = {m['K']} segments"),
+            ("target", VIOLET, f"Logistic regression · repeated-CV accuracy {pct(rcv['acc_mean'], 1)}"),
+            ("shield", AMBER if "REVIEW" in B["dq"]["status"].upper() else TEAL, f"Data quality: {st_}"),
+            ("clock", SLATE, f"Models trained {m['trained_at']}")]
+
+
+def _chips_html(chips):
+    return '<div class="qf-chips">' + "".join(f'<span class="qf-chip" style="--c:{c}">{icon(i, 13)}{t}</span>' for i, c, t in chips) + "</div>"
+
+
+def render_hero():
+    st.markdown(f"""<div class="qf-hero"><div class="h-grid">
+      <div class="h-id"><div class="h-mark">{brand_mark(44)}</div><div>
+        <div class="h-eyebrow">Diner intelligence · segmentation · basket analytics · reorder prediction</div>
+        <div class="h-title">QuickBite<span class="bar">|</span><span class="studio">QuantFin AI Studio</span></div>
+      </div></div>{_chips_html(_meta_chips())}</div></div>""", unsafe_allow_html=True)
+
+
+def render_studio_bar():
+    chips = _meta_chips()[:3]
+    st.markdown(f'<div class="qf-bar"><div class="b-id">{brand_mark(26)}<span>QuickBite</span><span class="bar">|</span>'
+                f'<span class="studio">QuantFin AI Studio</span></div>{_chips_html(chips)}</div>', unsafe_allow_html=True)
 
 
 def badge(status):
@@ -128,36 +279,136 @@ def badge(status):
     return f'<span class="badge {cls}">{s}</span>'
 
 
+# ── Plotly: one registered template carries the whole chart style ──────────
+_AXIS = "rgba(168,182,203,0.42)"
+_qf_tpl = go.layout.Template()
+_qf_tpl.layout = go.Layout(
+    font=dict(family=FONT, size=12.5, color=T["text2"]),
+    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+    colorway=[CYAN, BLUE, AMBER, TEAL, VIOLET, CORAL, SLATE],      # fallback only: charts set their colours explicitly
+    xaxis=dict(automargin=True, showgrid=False, zeroline=False, showline=True, linecolor=_AXIS, linewidth=1, ticks="outside",
+               ticklen=4, tickcolor=_AXIS, tickfont=dict(size=11.5, color=T["text2"]), title=dict(font=dict(size=12, color=T["text2"]), standoff=8)),
+    yaxis=dict(automargin=True, showgrid=True, gridcolor=GRID, gridwidth=1, zeroline=False, showline=False, ticks="",
+               tickfont=dict(size=11.5, color=T["text2"]), title=dict(font=dict(size=12, color=T["text2"]), standoff=8)),
+    legend=dict(orientation="h", x=0, xanchor="left", y=1.02, yanchor="bottom", bgcolor="rgba(0,0,0,0)",
+                font=dict(size=11.5, color=T["text2"]), itemsizing="constant"),
+    hoverlabel=dict(bgcolor=T["elev"], bordercolor=T["border"], font=dict(family=FONT, size=12.5, color=T["text"]), align="left", namelength=-1),
+    bargap=0.3, bargroupgap=0.08, separators=".,",
+)
+_qf_tpl.layout.annotationdefaults = dict(font=dict(color=T["text2"], size=11.5), arrowcolor=T["text3"])
+_qf_tpl.data.bar = [go.Bar(marker=dict(line=dict(width=0), cornerradius=4), textfont=dict(color=T["text2"], size=11.5))]
+_qf_tpl.data.scatter = [go.Scatter(marker=dict(line=dict(width=0.6, color=T["card"])), line=dict(width=2.25))]
+_qf_tpl.data.heatmap = [go.Heatmap(xgap=2, ygap=2, colorbar=dict(outlinewidth=0, thickness=10, tickfont=dict(color=T["text2"], size=11)))]
+_qf_tpl.data.box = [go.Box(line=dict(width=1.6), marker=dict(size=4, opacity=0.65))]
+_qf_tpl.data.histogram = [go.Histogram(marker=dict(line=dict(width=0)))]
+pio.templates["quantfin"] = _qf_tpl
+pio.templates.default = "quantfin"      # any figure that skipped style_fig() still gets the QuantFin look, never Plotly's default
+# Heatmap scales built only from palette tokens: the low end sits on the card surface (recedes), the lightest colour marks
+# the largest value; cell labels switch between dark and light text by cell luminance (heat_labels).
+IDX_SCALE = [[0, BLUE], [0.5, T["card"]], [1, AMBER]]                 # below ↔ above average on the blue–yellow axis (no good/bad implied)
+PEN_SCALE = [[0, T["card"]], [0.55, BLUE], [1, CYAN]]                 # share of baskets: card → analytical blue → ice
+CM_SCALE = [[0, T["card"]], [1, BLUE]]                                # confusion-matrix counts
+
+
+def _wrap_title(title, width=58):
+    """Plotly titles never wrap, so long titles are clipped in half-width cards and on phones: break them at word boundaries."""
+    lines = textwrap.wrap(title, width=width, break_long_words=False, break_on_hyphens=False) if title else []
+    return "<br>".join(lines), max(len(lines) - 1, 0) * 18
+
+
 def style_fig(fig, title=None, height=360, xt=None, yt=None, legend=True, legend_title=None, legend_inside=None):
+    title, extra = _wrap_title(title)
+    lt_extra = 18 if (legend and legend_title and not legend_inside) else 0     # legend title sits on its own row (see below)
     fig.update_layout(
-        template="none", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", height=height,
-        font=dict(family=FONT, color=TEXT, size=12),
-        title=dict(text=title, x=0, xanchor="left", y=0.98, yanchor="top", font=dict(size=14, color=TEXT)) if title else None,
-        margin=dict(l=8, r=12, t=(92 if legend else 58) if title else (40 if legend else 16), b=8), showlegend=legend,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="left", x=0, bgcolor="rgba(0,0,0,0)", font=dict(color=MUTED, size=11),
-                    title=dict(text=f"<b>{legend_title}</b>  " if legend_title else "", font=dict(color=TEXT, size=11))),
-        hoverlabel=dict(bgcolor=PANEL2, bordercolor=GOLD, font=dict(family=FONT, color=TEXT, size=12)),
+        template="quantfin", height=height + extra, showlegend=legend, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+        title=dict(text=title, x=0.012, xanchor="left", yref="container", y=1, yanchor="top", pad=dict(t=12),
+                   font=dict(size=14, color=T["text"], weight=650)) if title else None,
+        margin=dict(l=12, r=16, t=((92 if legend else 56) + extra + lt_extra) if title else (40 if legend else 14) + lt_extra, b=12),
+        # legend title above the items, so the items get the full width and wrap instead of being clipped on narrow cards
+        legend=dict(title=dict(text=f"<b>{legend_title}</b>" if legend_title else "", side="top left",
+                               font=dict(color=T["text"], size=11.5))),
     )
-    if legend_inside:                       # e.g. "br", "tl": place a vertical legend inside the plot area (narrow charts)
+    if legend_inside:                       # e.g. "br", "tl": vertical legend inside the plot area (narrow charts)
         x_, xa = (0.98, "right") if legend_inside[1] == "r" else (0.02, "left")
         y_, ya = (0.02, "bottom") if legend_inside[0] == "b" else (0.98, "top")
-        fig.update_layout(legend=dict(orientation="v", x=x_, xanchor=xa, y=y_, yanchor=ya, bgcolor="rgba(10,19,36,0.85)",
-                                      bordercolor=LINE, borderwidth=1), margin=dict(t=58 if title else 16))
-    fig.update_xaxes(title=xt, gridcolor=GRID, zerolinecolor=GRID, linecolor=LINE, tickfont=dict(color=MUTED),
-                     title_font=dict(color=MUTED, size=12), automargin=True)
-    fig.update_yaxes(title=yt, gridcolor=GRID, zerolinecolor=GRID, linecolor=LINE, tickfont=dict(color=MUTED),
-                     title_font=dict(color=MUTED, size=12), automargin=True)
+        fig.update_layout(legend=dict(orientation="v", x=x_, xanchor=xa, y=y_, yanchor=ya, bgcolor="rgba(16,26,45,0.88)",
+                                      bordercolor="rgba(168,182,203,0.22)", borderwidth=1), margin=dict(t=56 + extra if title else 14))
+    horiz = any(getattr(t, "orientation", None) == "h" for t in fig.data if t.type in ("bar", "box"))
+    heat = any(t.type == "heatmap" for t in fig.data)
+    fig.update_xaxes(title=xt, showgrid=horiz and not heat, gridcolor=GRID)
+    fig.update_yaxes(title=yt, showgrid=not horiz and not heat, gridcolor=GRID)
+    if heat:
+        fig.update_xaxes(showline=False, ticks="")
     return fig
 
 
+def _trace_colour(tr):
+    for path in (("marker", "color"), ("line", "color")):
+        obj = getattr(tr, path[0], None)
+        c = getattr(obj, path[1], None) if obj is not None else None
+        if isinstance(c, str):
+            return c
+    return None
+
+
+HALO = f"0 0 2px {T['card']}, 0 0 4px {T['card']}, 0 0 6px {T['card']}"
+
+
 def show(fig, key=None):
+    """Render with the QuantFin template (theme=None so Streamlit's chart theme does not override it)."""
     cfg = {"displayModeBar": False, "displaylogo": False}
+    fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
     fig.update_traces(cliponaxis=False, selector=dict(type="bar"))       # never clip value labels at the plot edge
     fig.update_traces(cliponaxis=False, selector=dict(type="scatter"))
+    for tr in fig.data:                                                    # tooltip border takes the series accent
+        c = _trace_colour(tr)
+        if c and tr.type != "heatmap":
+            tr.hoverlabel.bordercolor = c
+        # a soft panel-coloured halo keeps value labels legible where reference lines cross them
+        if tr.type == "scatter" and tr.mode and "text" in tr.mode and tr.textfont.shadow is None:
+            tr.textfont.shadow = HALO
+        if tr.type == "bar" and tr.textposition == "outside" and tr.textfont.shadow is None:
+            tr.textfont.shadow = HALO
+    for a in fig.layout.annotations:
+        if a.font.shadow is None:
+            a.font.shadow = HALO
+    if not any(tr.type in ("bar", "box", "heatmap", "histogram") for tr in fig.data):
+        fig.update_shapes(layer="below")      # point charts: reference lines sit beneath point labels, never across them
     try:
-        st.plotly_chart(fig, width="stretch", config=cfg, key=key)
+        st.plotly_chart(fig, width="stretch", config=cfg, key=key, theme=None)
     except TypeError:                               # older Streamlit
-        st.plotly_chart(fig, use_container_width=True, config=cfg, key=key)
+        st.plotly_chart(fig, use_container_width=True, config=cfg, key=key, theme=None)
+
+
+def _lum(hex_):
+    r, g, b = (int(hex_.lstrip("#")[i:i + 2], 16) / 255 for i in (0, 2, 4))
+    f = lambda c: c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4  # noqa: E731
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
+
+
+def _scale_colour(scale, t):
+    t = min(max(t, 0.0), 1.0)
+    for (p0, c0), (p1, c1) in zip(scale, scale[1:]):
+        if p0 <= t <= p1:
+            w = 0 if p1 == p0 else (t - p0) / (p1 - p0)
+            a = [int(c0.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4)]
+            b = [int(c1.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4)]
+            return "#" + "".join(f"{round(x + (y - x) * w):02X}" for x, y in zip(a, b))
+    return scale[-1][1]
+
+
+def heat_labels(fig, z, x, y, text, scale, zmin=None, zmax=None, size=11.5):
+    """Per-cell heatmap labels whose colour switches with cell luminance (WCAG: dark text above L≈0.19)."""
+    z = np.asarray(z, dtype=float)
+    lo = np.nanmin(z) if zmin is None else zmin
+    hi = np.nanmax(z) if zmax is None else zmax
+    for i, yy in enumerate(y):
+        for j, xx in enumerate(x):
+            cell = _scale_colour(scale, 0.5 if hi == lo else (z[i, j] - lo) / (hi - lo))
+            fig.add_annotation(x=xx, y=yy, text=str(text[i][j]), showarrow=False,
+                               font=dict(size=size, color=T["bg0"] if _lum(cell) > 0.19 else T["text"], shadow="none"))
+    fig.update_traces(texttemplate="", selector=dict(type="heatmap"))      # labels are drawn by the annotations above
+    return fig
 
 
 def table(df, height=None, column_config=None):
@@ -236,7 +487,8 @@ LABELS = {"orders_per_month": "Orders per month", "avg_order_value": "Avg order 
           "avg_items_per_order": "Avg items per order", "days_since_last_order": "Days since last order",
           "discount_rate": "Discount usage rate", "age": "Age (years)", "total_spend": "Total spend (AED)"}
 SEG_ORDER = B["seg_order"] if B else list(seg_names.values())
-SC = {s: SEG_COLORS_DARK.get(s, STEEL) for s in SEG_ORDER}
+SC = {s: SEGMENT_COLORS.get(s, SLATE) for s in SEG_ORDER}          # one mapping for every segment chart, card and chip
+SSYM = {s: SEGMENT_SYMBOLS.get(s, "circle") for s in SEG_ORDER}
 RISK_TIERS = [(0.75, "High retention likelihood", "Loyalty reward / premium upsell — no discount needed"),
               (0.50, "Moderate retention likelihood", "Personalised promotion on segment favourites"),
               (0.25, "At-risk", "Targeted retention offer within 7 days"),
@@ -270,7 +522,8 @@ def num(v):
 def extrapolation(profile):
     if not B:
         return []
-    return [f"{LABELS[f]} = {num(profile[f])} (training range {num(lo)}–{num(hi)})"
+    # B["train_ranges"] (name kept) = observed min–max over all adult classifier diners (training + test), not training-only
+    return [f"{LABELS[f]} = {num(profile[f])} (observed adult range {num(lo)}–{num(hi)})"
             for f, (lo, hi) in B["train_ranges"].items() if not lo <= profile[f] <= hi]
 
 
@@ -381,10 +634,11 @@ def page_overview():
     kpi(c[3], "Monthly spend / diner", aed(d.est_monthly_spend.mean()),
         f"{d.orders_per_month.mean():.1f} orders/month × {aed(d.avg_order_value.mean())} AOV")
     rcv = B["validation"]["repeated_cv"]
-    kpi(c[4], "Model accuracy", pct(rcv["acc_mean"], 1),
-        f"Repeated CV ± {pct(rcv['acc_sd'], 1)} · baseline {pct(rcv['baseline'], 1)} · AUC {rcv['auc_mean']:.2f}", "pos")
+    kpi(c[4], "Repeated-CV accuracy", pct(rcv["acc_mean"], 1),
+        f"Post-selection stability check ± {pct(rcv['acc_sd'], 1)} · its baseline {pct(rcv['baseline'], 1)} · AUC {rcv['auc_mean']:.2f}", "pos",
+        help_text="Repeated 5-fold CV of the already-selected model on all adult diners (incl. the test diners). A stability check, "
+                  "not an independent estimate; the independent result is the held-out test accuracy on Retention & Churn.")
 
-    st.write("")
     c = st.columns([1, 1, 1.25])
     kpi(c[0], "Highest-value segment", hv, f"{aed(E.loc[hv, 'value'])} per diner / month · {pct(P.loc[hv, 'Share of monthly revenue'])} of revenue", "gold", small=True)
     kpi(c[1], "Largest movable value", mv, f"{int(E.loc[mv, 'movable_diners'])} diners at 25–75% hold {aed(E.loc[mv, 'movable_value'])} / month", "caution", small=True)
@@ -399,7 +653,7 @@ def page_overview():
     largest = P.loc[SEG_ORDER, "Diners"].idxmax()
     fam = "Family Feasters"
     prem_bundle = opp[opp.Segment == hv].iloc[0]
-    st.markdown(f"""<div class="narr">
+    st.markdown(f"""<div class="narr"><div class="n-head">{icon("spark", 13)}Executive brief · computed from the analysis results</div>
     QuickBite's diner base is concentrated in <b>{largest}</b> ({pct(P.loc[largest, 'Share of diners'])} of diners), who reorder almost always
     ({pct(P.loc[largest, 'Reorder rate'])}) but spend the least per order. The <b>highest-value segment is {hv}</b> at {aed(E.loc[hv, 'value'])} per diner
     per month ({pct(P.loc[hv, 'Share of monthly revenue'])} of revenue), yet only {pct(P.loc[hv, 'Reorder rate'])} of them reorder.
@@ -441,6 +695,7 @@ def page_overview():
         for s in SEG_ORDER:
             cnt = scored[scored.segment == s].risk_tier.value_counts().reindex(tiers).fillna(0)
             fig.add_bar(name=s, y=tiers, x=cnt.values, orientation="h", marker_color=SC[s],
+                        marker_pattern=dict(shape=SEGMENT_PATTERNS.get(s, ""), fgcolor=BG, size=6, solidity=0.2, fillmode="overlay"),
                         text=[int(v) if v >= 6 else "" for v in cnt.values], textposition="inside", insidetextanchor="middle",
                         textfont=dict(color=BG), hovertemplate=f"{s}<br>%{{y}}: %{{x}} diners<extra></extra>")
         totals = scored.risk_tier.value_counts().reindex(tiers).fillna(0)
@@ -448,8 +703,10 @@ def page_overview():
             fig.add_annotation(x=v_, y=t_, text=f"<b>{int(v_)}</b> ({pct(v_ / len(scored))})", showarrow=False, xanchor="left", xshift=6,
                                font=dict(color=TEXT, size=11))
         style_fig(fig, f"Risk-tier composition by segment ({len(scored)} adult diners, out-of-fold)", xt="Number of diners", yt="Risk tier",
-                  height=360, legend_title="Segment")
+                  height=360)
+        fig.update_layout(legend=dict(traceorder="normal", entrywidth=0, title=dict(text="")))
         fig.update_layout(barmode="stack")
+        fig.update_yaxes(tickmode="array", tickvals=tiers, ticktext=[f"{TIER_GLYPH[t_]} {t_}" for t_ in tiers])   # status = glyph + label
         fig.update_xaxes(range=[0, totals.max() * 1.3])
         show(fig, "ov_tiers")
     with c2:
@@ -462,20 +719,25 @@ def page_overview():
         fig.update_xaxes(tickformat=".0%", range=[0, f.max() * 1.18])
         show(fig, "ov_items")
 
-    section("Revenue concentration", "Portfolio risk", "How dependent is QuickBite on its top spenders? Diners ranked from highest to lowest estimated monthly spend.")
-    L = B["lorenz"]
+    section("Revenue concentration", "Portfolio risk", "How dependent is QuickBite on its top spenders? Diners ranked from highest to lowest estimated monthly spend. "
+            "Because the ranking starts with the highest spenders, this is a concentration curve rather than a Lorenz curve (which ranks lowest first); "
+            "the Gini coefficient is computed with the standard ascending formula and is identical for both views.")
+    L = B["lorenz"]          # bundle key kept for compatibility; holds the highest-first concentration curve
     c1, c2 = st.columns([1.4, 1])
     with c1:
         fig = go.Figure()
         fig.add_scatter(x=[0, 1], y=[0, 1], mode="lines", line=dict(dash="dash", color=FAINT), name="Perfect equality (Gini 0)")
-        fig.add_scatter(x=L["pop"], y=L["rev"], mode="lines", line=dict(color=GOLD, width=3), name=f"QuickBite diners (Gini {L['gini']:.2f})",
+        fig.add_scatter(x=L["pop"], y=L["rev"], mode="lines", line=dict(color=CYAN, width=3), name=f"QuickBite diners (Gini {L['gini']:.2f})",
                         hovertemplate="Top %{x:.0%} of diners → %{y:.0%} of revenue<extra></extra>")
         for k_, q_ in zip(L["conc"], (0.1, 0.2, 0.5)):
-            fig.add_scatter(x=[q_], y=[L["conc"][k_]], mode="markers+text", marker=dict(size=10, color=GOLD, line=dict(color=TEXT, width=1)),
+            fig.add_scatter(x=[q_], y=[L["conc"][k_]], mode="markers+text", marker=dict(size=10, color=CYAN, line=dict(color=TEXT, width=1)),
                             text=[f"{k_} → {pct(L['conc'][k_])} of revenue"], textposition="bottom right", textfont=dict(color=TEXT, size=11),
                             showlegend=False, hoverinfo="skip")
-        style_fig(fig, "Lorenz curve — cumulative revenue by share of diners", xt="Cumulative share of diners (highest spenders first)",
-                  yt="Cumulative share of est. monthly revenue", height=380, legend_title="Curve")
+        style_fig(fig, "Revenue Concentration Curve — Highest-Spending Diners First", xt="Cumulative share of diners (highest spenders first)",
+                  yt="Cumulative share of est. monthly revenue", height=400, legend_title="Curve")
+        sub = "<br>".join(textwrap.wrap("Illustrates the cumulative share of observed diner revenue contributed by customers "
+                                        "ranked from highest to lowest spending.", 70))
+        fig.update_layout(title_subtitle=dict(text=sub, font=dict(size=11.5, color=MUTED)), margin=dict(t=fig.layout.margin.t + 22))
         fig.update_xaxes(tickformat=".0%"); fig.update_yaxes(tickformat=".0%")
         show(fig, "ov_lorenz")
     with c2:
@@ -509,12 +771,12 @@ def page_segmentation():
         strat = B["seg_strategy"]
         for col, s in zip(cols, SEG_ORDER):
             r = P.loc[s]
-            col.markdown(f"""<div class="segcard" style="--c:{SC[s]}"><h4>{s}</h4>
+            col.markdown(f"""<div class="segcard" style="--c:{SC[s]}"><h4><span class="g">{SEG_GLYPH[s]}</span>&nbsp;{s}</h4>
             <div class="meta">{int(r.Diners)} diners · {pct(r['Share of diners'])} of base · {pct(r['Share of monthly revenue'])} of revenue</div>
             <div class="lbl">Who they are</div><p>{strat[s]['who']}</p>
             <div class="lbl">Value · Risk</div><p>{aed(r['Est. monthly spend (AED)'])}/month per diner · reorder {pct(r['Reorder rate'])}. {strat[s]['risk']}</p>
             <div class="lbl">Discounts · Loyalty</div><p>{strat[s]['discounts']} {strat[s]['loyalty']}</p>
-            <div class="lbl">Management action</div><p style="color:{SC[s]}">{strat[s]['action']}</p></div>""", unsafe_allow_html=True)
+            <div class="lbl">Management action</div><p class="act">{strat[s]['action']}</p></div>""", unsafe_allow_html=True)
 
         section("Segment profile vs overall average", "Profile")
         rows = ["Diners", "Share of diners", "Orders / month", "Avg order value (AED)", "Items / order", "Days since last order",
@@ -531,12 +793,14 @@ def page_segmentation():
 
         idx = B["seg_index"].loc[SEG_ORDER]
         fig = go.Figure(go.Heatmap(z=idx.values, x=list(idx.columns), y=SEG_ORDER, zmid=100,
-                                   colorscale=[[0, "#3B6FB6"], [0.5, "#1B2A47"], [1, "#C9A227"]],
+                                   colorscale=IDX_SCALE,
                                    text=idx.values.astype(int), texttemplate="%{text}", textfont=dict(color=TEXT),
                                    hovertemplate="%{y}<br>%{x}: index %{z:.0f} (100 = overall average)<extra></extra>",
                                    colorbar=dict(title=dict(text="Index", font=dict(color=MUTED)), tickfont=dict(color=MUTED))))
         style_fig(fig, "Behavioural fingerprint — index vs overall average (100 = average; >100 above, <100 below)",
                   xt="Behavioural metric", yt="Segment", height=320, legend=False)
+        dev_ = float(np.nanmax(np.abs(idx.values - 100)))
+        heat_labels(fig, idx.values, list(idx.columns), SEG_ORDER, idx.values.astype(int), IDX_SCALE, 100 - dev_, 100 + dev_, size=12)
         fig.update_xaxes(showgrid=False)
         fig.update_yaxes(showgrid=False, autorange="reversed")
         show(fig, "seg_heat")
@@ -550,7 +814,7 @@ def page_segmentation():
             fig = go.Figure(go.Bar(x=SEG_ORDER, y=vals, marker_color=[SC[x] for x in SEG_ORDER], text=[fmt_(v) for v in vals],
                                    textposition="outside", hovertemplate="%{x}: %{text}<extra></extra>"))
             if metric == "Reorder rate":
-                fig.add_hline(y=P.loc["All diners", metric], line_dash="dash", line_color=MUTED)
+                fig.add_hline(y=P.loc["All diners", metric], line_dash="dash", line_color=MUTED, layer="below")
                 ttl = f"Reorder rate (dashed = all diners, {pct(P.loc['All diners', metric])})"
                 fig.update_yaxes(tickformat=".0%")
             style_fig(fig, ttl, xt="Segment", yt=yt, height=320, legend=False)
@@ -565,20 +829,19 @@ def page_segmentation():
         with c1:
             kws = kw.sort_values("Effect size ε²")
             fig = go.Figure(go.Bar(x=kws["Effect size ε²"], y=kws.Feature, orientation="h",
-                                   marker_color=[STEEL if u else FAINT for u in kws["Used in clustering"]],
+                                   marker_color=[VIOLET if u else NEUTRAL for u in kws["Used in clustering"]],
                                    text=[f"ε² {e:.2f} · p {'< 0.001' if pv < 0.001 else f'= {pv:.3f}'}" for e, pv in zip(kws['Effect size ε²'], kws['p-value'])],
                                    textposition="outside", hovertemplate="%{y}: ε² = %{x:.3f}<extra></extra>"))
-            fig.add_vline(x=0.26, line_dash="dot", line_color=GOLD, annotation_text="large effect ≥ 0.26", annotation_font_color=GOLD,
+            fig.add_vline(x=0.26, line_dash="dot", line_color=AMBER, annotation_text="large effect ≥ 0.26", annotation_font_color=AMBER,
                           annotation_position="top right")
-            style_fig(fig, "Effect size of segment on each feature (blue = clustering feature, grey = not used)",
-                      xt="Effect size ε² (share of rank variance explained by segment)", yt="Feature", height=340, legend=False)
+            style_fig(fig, "Effect size by feature (violet = used in clustering)",
+                      xt="Effect size ε² (share of rank variance explained by segment)", yt="Feature", height=360, legend=False)
             fig.update_xaxes(range=[0, 1.25])
+            fig.update_yaxes(range=[-0.6, len(kws) - 0.4 + 0.7])      # headroom so the threshold label never sits on a bar
             show(fig, "seg_kw")
         with c2:
-            st.write("")
             kpi(st, "Reorder rate × segment", f"χ²({int(ch['dof'])}) = {ch['chi2']:.0f}",
-                f"p = {ch['p']:.1e} · Cramér's V = {ch['cramers_v']:.2f} (strong association)", "pos", small=True)
-            st.write("")
+                f"p = {ch['p']:.1e} · Cramér's V = {ch['cramers_v']:.2f} (strong association)", small=True)
             note("All seven features differ across segments with <b>large</b> effects (p &lt; 0.001), including age and total spend, which "
                  "were not used to build the segments — independent evidence that the personas are real. Reorder behaviour is also "
                  "strongly tied to segment (Cramér's V shown).", "pos")
@@ -589,12 +852,12 @@ def page_segmentation():
         for col, metric, ttl, yt in [(c1, "Inertia", "Elbow method — within-cluster sum of squares", "Inertia (scaled units²)"),
                                      (c2, "Silhouette", "Silhouette score by K (higher = better separated)", "Mean silhouette score")]:
             fig = go.Figure(go.Scatter(x=k.K, y=k[metric], mode="lines+markers+text", line=dict(color=STEEL, width=2),
-                                       marker=dict(size=9, color=[GOLD if kk == 3 else STEEL for kk in k.K]),
+                                       marker=dict(size=9, color=[VIOLET if kk == 3 else STEEL for kk in k.K]),
                                        text=[f"{v:,.0f}" if metric == "Inertia" else f"{v:.3f}" for v in k[metric]],
                                        textposition="top center", textfont=dict(color=TEXT, size=11), name=metric,
                                        hovertemplate="K = %{x}<br>" + metric + ": %{y:.3f}<extra></extra>"))
-            fig.add_annotation(x=3, y=float(k.set_index("K").loc[3, metric]), text="<b>Chosen K = 3</b>", showarrow=True, arrowcolor=GOLD,
-                               font=dict(color=GOLD), ax=-70 if metric == "Inertia" else 60, ay=40 if metric == "Inertia" else -35)
+            fig.add_annotation(x=3, y=float(k.set_index("K").loc[3, metric]), text="<b>Chosen K = 3</b>", showarrow=True, arrowcolor=VIOLET,
+                               font=dict(color=VIOLET), ax=-70 if metric == "Inertia" else 60, ay=40 if metric == "Inertia" else -35)
             style_fig(fig, ttl, xt="Number of segments (K)", yt=yt, height=340, legend=False)
             fig.update_xaxes(dtick=1)
             fig.update_yaxes(range=[0 if metric == "Inertia" else k[metric].min() * .85, k[metric].max() * 1.15])
@@ -614,10 +877,10 @@ def page_segmentation():
         cs = B["validation"]["cluster_stability"]
         stab = {"Bootstrap mean ARI (200 re-fits)": cs["boot_mean"], "Bootstrap worst-5% ARI": cs["boot_p5"],
                 "Seed re-runs mean ARI (50)": cs["seed_mean"], "Seed re-runs identical (share)": cs["seed_share_perfect"]}
-        fig = go.Figure(go.Bar(x=list(stab), y=list(stab.values()), marker_color=[STEEL, STEEL, FAINT, FAINT],
+        fig = go.Figure(go.Bar(x=list(stab), y=list(stab.values()), marker_color=[VIOLET, VIOLET, NEUTRAL, NEUTRAL],
                                text=[pct(v) if "share" in k_ else f"{v:.3f}" for k_, v in stab.items()], textposition="outside",
                                hovertemplate="%{x}: %{text}<extra></extra>"))
-        fig.add_hline(y=0.9, line_dash="dot", line_color=GOLD, annotation_text="highly stable ≥ 0.90", annotation_font_color=GOLD, annotation_position="bottom right")
+        fig.add_hline(y=0.9, line_dash="dot", line_color=AMBER, annotation_text="highly stable ≥ 0.90", annotation_font_color=AMBER, annotation_position="bottom right")
         style_fig(fig, "Cluster stability — agreement with the final segments", xt="Stability test", yt="Adjusted Rand Index / share", height=330, legend=False)
         fig.update_yaxes(range=[0, 1.18])
         show(fig, "seg_stab")
@@ -630,7 +893,7 @@ def page_segmentation():
             fig = go.Figure()
             for s in SEG_ORDER:
                 ss = d[d.segment == s]
-                fig.add_scatter(x=ss.pc1, y=ss.pc2, mode="markers", name=f"{s} ({len(ss)})", marker=dict(color=SC[s], size=6, opacity=.65),
+                fig.add_scatter(x=ss.pc1, y=ss.pc2, mode="markers", name=f"{s} ({len(ss)})", marker=dict(color=SC[s], size=7, opacity=.70, symbol=SSYM[s]),
                                 customdata=np.c_[ss.diner_id, ss.orders_per_month, ss.avg_order_value],
                                 hovertemplate="%{customdata[0]}<br>%{customdata[1]} orders/month · AED %{customdata[2]:.0f} AOV<extra>" + s + "</extra>")
                 fig.add_scatter(x=[ss.pc1.mean()], y=[ss.pc2.mean()], mode="markers+text", marker=dict(symbol="x", size=14, color=SC[s], line=dict(color=TEXT, width=1)),
@@ -645,7 +908,7 @@ def page_segmentation():
             for s in SEG_ORDER:
                 ss = d[d.segment == s]
                 fig.add_scatter(x=ss.orders_per_month, y=ss.avg_order_value, mode="markers", name=s,
-                                marker=dict(color=SC[s], size=6, opacity=.6),
+                                marker=dict(color=SC[s], size=7, opacity=.66, symbol=SSYM[s]),
                                 hovertemplate="%{x} orders/month<br>AED %{y:.0f} average order<extra>" + s + "</extra>")
                 fig.add_scatter(x=[ss.orders_per_month.mean()], y=[ss.avg_order_value.mean()], mode="markers+text",
                                 marker=dict(symbol="x", size=14, color=SC[s], line=dict(color=TEXT, width=1)),
@@ -673,7 +936,7 @@ def page_basket():
     c = st.columns(4)
     kpi(c[0], "Baskets analysed", f"{meta['n_baskets']:,}", f"{meta['n_order_rows']:,} order-item rows")
     kpi(c[1], "Menu items", f"{meta['n_items']}", f"Avg basket {meta['n_order_rows'] / meta['n_baskets']:.1f} items")
-    kpi(c[2], "Overall rules (lift > 1)", f"{len(ra)}", f"{n_strat} strategic: support ≥ 5%, confidence ≥ 60%, lift ≥ 1.2", "pos")
+    kpi(c[2], "Overall rules (lift > 1)", f"{len(ra)}", f"{n_strat} strategic: support ≥ 5%, confidence ≥ 60%, lift ≥ 1.2")
     kpi(c[3], "Strongest in-segment lift", f"{opp.Lift.max():.1f}×", f"{opp.sort_values('Lift').iloc[-1]['Segment']}")
 
     section("Basket opportunity matrix", "Executive view",
@@ -737,12 +1000,13 @@ def page_basket():
         r["explain"] = [f"Lift {l:.2f} means the pair occurs together about {l:.2f}× as often as expected under independence."
                         for l in r.lift]
         fig = go.Figure()
-        for tier, colr in [("Strategic", POS), ("Low support — test only", CAUTION), ("Low confidence", FAINT), ("No real association (lift ≈ 1)", RISK)]:
+        for tier, colr, sym in [("Strategic", POS, "circle"), ("Low support — test only", CAUTION, "diamond"),
+                                ("Low confidence", FAINT, "square"), ("No real association (lift ≈ 1)", RISK, "x")]:
             rr = r[r.tier == tier]
             if rr.empty:
                 continue
             fig.add_scatter(x=rr.support, y=rr.confidence, mode="markers", name=tier,
-                            marker=dict(size=np.clip(rr.lift * 1.4, 6, 40), color=colr, opacity=.75, line=dict(width=.5, color=BG)),
+                            marker=dict(size=np.clip(rr.lift * 1.4, 6, 40), color=colr, opacity=.75, symbol=sym, line=dict(width=.5, color=BG)),
                             customdata=np.c_[rr.antecedent, rr.consequent, rr.lift, rr.explain],
                             hovertemplate="<b>%{customdata[0]} → %{customdata[1]}</b><br>Support %{x:.1%} · Confidence %{y:.0%}<br>"
                                           "%{customdata[3]}<extra></extra>")
@@ -751,7 +1015,7 @@ def page_basket():
         top_lab = r[r.tier == "Strategic"].sort_values("lift", ascending=False).drop_duplicates(subset=["support", "confidence"]).head(5)
         for _, x in top_lab.iterrows():
             fig.add_annotation(x=x.support, y=x.confidence, text=f"{x.antecedent} → {x.consequent}<br>lift {x.lift:.1f}×", showarrow=True,
-                               arrowcolor=MUTED, ax=60, ay=-28, font=dict(color=TEXT, size=10), bgcolor="rgba(16,29,51,0.85)")
+                               arrowcolor=MUTED, ax=60, ay=-28, font=dict(color=TEXT, size=10), bgcolor="rgba(16,26,45,0.9)")
         fig.add_annotation(x=0.05, y=0.02, yref="paper", text="support 5%", showarrow=False, xanchor="left", font=dict(color=MUTED, size=10))
         fig.add_annotation(x=1, xref="paper", y=0.60, text="confidence 60%", showarrow=False, xanchor="right", yshift=8, font=dict(color=MUTED, size=10))
         style_fig(fig, "Rule map — support × confidence (bubble size = lift; dotted lines = strategic thresholds)",
@@ -773,11 +1037,12 @@ def page_basket():
                                 "Confidence": ra.confidence.map(pct), "Lift": ra.lift.map(lambda v: f"{v:.2f}×"), "Tier": ra.tier}), height=420)
     with t3:
         sm = B["share_mat"][SEG_ORDER]
-        fig = go.Figure(go.Heatmap(z=sm.values, x=SEG_ORDER, y=list(sm.index), colorscale=[[0, PANEL], [1, STEEL]],
+        fig = go.Figure(go.Heatmap(z=sm.values, x=SEG_ORDER, y=list(sm.index), colorscale=PEN_SCALE,
                                    text=[[pct(v) if v > 0 else "—" for v in row] for row in sm.values], texttemplate="%{text}",
                                    textfont=dict(color=TEXT), hovertemplate="%{y} in %{z:.0%} of %{x} baskets<extra></extra>",
                                    colorbar=dict(tickformat=".0%", tickfont=dict(color=MUTED))))
         style_fig(fig, "Menu penetration — share of each segment's baskets containing the item", xt="Segment", yt="Menu item", height=580, legend=False)
+        heat_labels(fig, sm.values, SEG_ORDER, list(sm.index), [[pct(v) if v > 0 else "—" for v in row] for row in sm.values], PEN_SCALE)
         fig.update_xaxes(showgrid=False, side="top")
         fig.update_yaxes(showgrid=False, autorange="reversed")
         show(fig, "bk_heat")
@@ -793,19 +1058,24 @@ def page_retention():
     V = B["validation"]; rcv = V["repeated_cv"]; bci = V["bootstrap_ci"].set_index("Metric")
     u18 = B["under18"]
     c = st.columns(6)
-    kpi(c[0], "Expected accuracy", pct(rcv["acc_mean"], 1), f"Repeated 5-fold CV (50 fits) ± {pct(rcv['acc_sd'], 1)} · baseline {pct(rcv['baseline'], 1)}", "pos")
+    kpi(c[0], "Repeated-CV accuracy", pct(rcv["acc_mean"], 1),
+        f"Stability check, 50 fits ± {pct(rcv['acc_sd'], 1)} · its baseline {pct(rcv['baseline'], 1)}", "pos")
     kpi(c[1], "Test-split accuracy", pct(m["Accuracy"], 1),
-        f"95% CI {pct(bci.loc['Accuracy', '95% CI low'], 1)}–{pct(bci.loc['Accuracy', '95% CI high'], 1)} · {pp(m['Lift over baseline (pp)'])} vs baseline")
-    kpi(c[2], "ROC-AUC", f"{rcv['auc_mean']:.3f}", f"CV mean · test {m['ROC-AUC']:.3f} (0.5 = random)")
+        f"Held-out · 95% CI {pct(bci.loc['Accuracy', '95% CI low'], 1)}–{pct(bci.loc['Accuracy', '95% CI high'], 1)} · "
+        f"{pp(m['Lift over baseline (pp)'])} vs its {pct(m['Baseline accuracy'], 1)} baseline")
+    kpi(c[2], "ROC-AUC", f"{rcv['auc_mean']:.3f}", f"Repeated-CV mean · held-out test {m['ROC-AUC']:.3f} (0.5 = random)")
     kpi(c[3], "Churners caught", pct(m["Churn recall (churners caught)"]),
         f"Test recall · 95% CI {pct(bci.loc['Churn recall', '95% CI low'])}–{pct(bci.loc['Churn recall', '95% CI high'])}")
     kpi(c[4], "Precision", pct(m["Precision (reorder)"]), f"Of predicted reorders · F1 {m['F1 (reorder)']:.3f}")
     kpi(c[5], "Scope", f"{B['meta']['n_model_rows']} adults", f"{int(m['Test observations'])} in test · {u18['n']} under-18 excluded", "caution")
-    note(f"Expected real-world accuracy is <b>{pct(rcv['acc_mean'], 1)}</b> (repeated cross-validation), "
-         f"<b>{(rcv['acc_mean'] - rcv['baseline']) * 100:.1f} percentage points</b> above the majority-class baseline of {pct(rcv['baseline'], 1)}. "
-         f"The single held-out test split scored {pct(m['Accuracy'], 1)}; its bootstrap 95% interval "
-         f"({pct(bci.loc['Accuracy', '95% CI low'], 1)}–{pct(bci.loc['Accuracy', '95% CI high'], 1)}) shows that one split is a noisy draw, "
-         "so the cross-validated figure is the one to quote. Model choice was made on cross-validation, not the test split.", "pos")
+    note(f"<b>Three evaluations, three roles.</b> The model was <b>selected</b> on 5-fold cross-validation inside the "
+         f"{B['meta']['n_train']} training diners. Its <b>independent evaluation</b> is the untouched {int(m['Test observations'])}-diner test set: "
+         f"<b>{pct(m['Accuracy'], 1)}</b> accuracy (bootstrap 95% CI {pct(bci.loc['Accuracy', '95% CI low'], 1)}–"
+         f"{pct(bci.loc['Accuracy', '95% CI high'], 1)}) against that set's majority baseline of {pct(m['Baseline accuracy'], 1)}. "
+         f"As a <b>post-selection stability check</b>, the fixed configuration scored {pct(rcv['acc_mean'], 1)} ± {pct(rcv['acc_sd'], 1)} in repeated "
+         f"5-fold CV across all {B['meta']['n_model_rows']} adult diners, against that exercise's baseline of {pct(rcv['baseline'], 1)}. Because it re-uses "
+         "the test diners and does not repeat the model selection, it is not an independent, selection-adjusted estimate (nested CV was not "
+         "performed); it shows that the result is stable across splits.", "pos")
 
     section("Model performance", "Evaluation", "Test set = 20% stratified hold-out of adult diners; calibration uses out-of-fold predictions for all adult diners.")
     c1, c2, c3 = st.columns([1, 1, 1])
@@ -815,8 +1085,9 @@ def page_retention():
         txt = [[f"<b>{abbr[i][j]}: {cm[i, j]}</b><br>{pct(rowp[i, j])} of row" for j in range(2)] for i in range(2)]
         fig = go.Figure(go.Heatmap(z=cm, x=["Pred. churn", "Pred. reorder"], y=["Actual churn", "Actual reorder"],
                                    text=txt, texttemplate="%{text}", textfont=dict(color=TEXT, size=13), showscale=False,
-                                   colorscale=[[0, PANEL2], [1, "#2E5C9A"]], hovertemplate="%{y} · %{x}: %{z} diners<extra></extra>"))
+                                   colorscale=CM_SCALE, hovertemplate="%{y} · %{x}: %{z} diners<extra></extra>"))
         style_fig(fig, f"Confusion matrix (test, n = {int(m['Test observations'])})", xt="Model prediction", yt="Actual outcome", height=360, legend=False)
+        heat_labels(fig, cm, ["Pred. churn", "Pred. reorder"], ["Actual churn", "Actual reorder"], txt, CM_SCALE, size=13)
         fig.update_xaxes(showgrid=False)
         fig.update_yaxes(showgrid=False, autorange="reversed")
         show(fig, "rt_cm")
@@ -827,13 +1098,13 @@ def page_retention():
         fpr, tpr = B["roc"]
         fig = go.Figure()
         fig.add_scatter(x=[0, 1], y=[0, 1], mode="lines", line=dict(dash="dash", color=FAINT), name="Random (AUC 0.500)")
-        fig.add_scatter(x=fpr, y=tpr, mode="lines", line=dict(color=GOLD, width=2.5), name=f"Logistic regression (AUC {m['ROC-AUC']:.3f})",
+        fig.add_scatter(x=fpr, y=tpr, mode="lines", line=dict(color=BLUE, width=2.5), name=f"Logistic regression (AUC {m['ROC-AUC']:.3f})",
                         hovertemplate="False-positive rate %{x:.0%}<br>True-positive rate %{y:.0%}<extra></extra>")
         ofpr, otpr = fp_ / (fp_ + tn), tp / (tp + fn)
         fig.add_scatter(x=[ofpr], y=[otpr], mode="markers+text", marker=dict(size=11, color=CAUTION, line=dict(color=TEXT, width=1)),
                         text=[f"0.5 cut-off: TPR {pct(otpr)} · FPR {pct(ofpr)}"], textposition="bottom right", textfont=dict(color=TEXT, size=11),
                         name="Operating point (0.5)")
-        fig.add_annotation(x=0.55, y=0.55, text=f"<b>AUC = {m['ROC-AUC']:.3f}</b>", showarrow=False, font=dict(color=GOLD, size=16))
+        fig.add_annotation(x=0.68, y=0.45, text=f"<b>AUC = {m['ROC-AUC']:.3f}</b>", showarrow=False, font=dict(color=BLUE_T, size=16))
         style_fig(fig, "ROC curve — test set", xt="False-positive rate", yt="True-positive rate", height=360, legend_inside="br")
         fig.update_xaxes(tickformat=".0%"); fig.update_yaxes(tickformat=".0%")
         show(fig, "rt_roc")
@@ -862,13 +1133,14 @@ def page_retention():
         note(f"<b>False negative — {fn} diners:</b> predicted to churn, but reordered. The cost is an unnecessary retention offer — "
              "a discount on one order. Cheaper, so the model should be used to rank diners rather than only at the 0.5 cut-off.", "caution")
 
-    section("How precise are these numbers?", "Uncertainty", "Bootstrap 95% confidence intervals on the 92-diner test set (2,000 resamples) and the spread of "
-            "50 repeated cross-validation fits.")
+    section("How precise are these numbers?", "Uncertainty", "Left: bootstrap 95% confidence intervals on the 92-diner held-out test set (2,000 resamples) — "
+            "the final independent evaluation. Right: the spread of 50 repeated cross-validation fits on all adult diners — a post-selection "
+            "stability check of the fixed configuration, not an independent estimate.")
     c1, c2 = st.columns([1.2, 1])
     with c1:
         bc = V["bootstrap_ci"]
         bc = bc[bc.Metric != "Lift over baseline (pp)"].iloc[::-1]
-        fig = go.Figure(go.Scatter(x=bc["Point estimate"], y=bc.Metric, mode="markers+text", marker=dict(size=11, color=GOLD),
+        fig = go.Figure(go.Scatter(x=bc["Point estimate"], y=bc.Metric, mode="markers+text", marker=dict(size=11, color=BLUE_T),
                                    error_x=dict(type="data", symmetric=False, array=bc["95% CI high"] - bc["Point estimate"],
                                                 arrayminus=bc["Point estimate"] - bc["95% CI low"], color=MUTED, thickness=2, width=6),
                                    text=[f"{pct(p_, 1)} (95% CI {pct(l_, 1)}–{pct(h_, 1)})" for p_, l_, h_ in
@@ -883,13 +1155,14 @@ def page_retention():
     with c2:
         cvs = V["cv_scores"]
         fig = go.Figure()
-        for col_, colr in [("Accuracy", STEEL), ("ROC-AUC", GOLD)]:
+        for col_, colr in [("Accuracy", STEEL), ("ROC-AUC", VIOLET)]:
             fig.add_box(y=cvs[col_], name=col_, marker_color=colr, boxpoints="all", jitter=.4, pointpos=0, boxmean=True)
             fig.add_annotation(x=col_, y=cvs[col_].max(), text=f"mean {pct(cvs[col_].mean(), 1)} ± {pct(cvs[col_].std(), 1)}",
                                showarrow=False, yshift=16, font=dict(color=TEXT, size=11))
         fig.add_hline(y=rcv["baseline"], line_dash="dash", line_color=CAUTION, annotation_text=f"baseline {pct(rcv['baseline'], 1)}",
                       annotation_font_color=CAUTION, annotation_position="bottom right")
-        style_fig(fig, "Repeated 5-fold CV — 50 out-of-sample fits", xt="Metric", yt="Score on held-out fold", height=360, legend=False)
+        style_fig(fig, "Repeated 5-fold CV — post-selection stability check (50 fits, all adults)", xt="Metric", yt="Score on held-out fold",
+                  height=360, legend=False)
         fig.update_yaxes(tickformat=".0%", range=[0.55, 1.03])
         show(fig, "rt_cv")
 
@@ -910,7 +1183,7 @@ def page_retention():
         show(fig, "rt_coef")
     with c2:
         pi = imp["Permutation importance (AUC drop)"].sort_values()
-        fig = go.Figure(go.Bar(x=pi.values, y=[LABELS[i] for i in pi.index], orientation="h", marker_color=STEEL,
+        fig = go.Figure(go.Bar(x=pi.values, y=[LABELS[i] for i in pi.index], orientation="h", marker_color=BLUE,
                                error_x=dict(type="data", array=imp.loc[pi.index, "Permutation sd"].values, color=MUTED, thickness=1),
                                hovertemplate="%{y}<br>AUC drops by %{x:.3f} when shuffled<extra></extra>"))
         for f_, v_ in pi.items():
@@ -937,18 +1210,20 @@ def page_retention():
     c1, c2 = st.columns(2)
     with c1:
         fig = go.Figure()
-        fig.add_bar(x=tiers, y=[ts.loc[t, "Mean predicted P(reorder)"] for t in tiers], name="Mean predicted P(reorder)", marker_color=STEEL,
+        fig.add_bar(x=tiers, y=[ts.loc[t, "Mean predicted P(reorder)"] for t in tiers], name="Mean predicted P(reorder)", marker_color=BLUE,
                     text=[pct(ts.loc[t, "Mean predicted P(reorder)"]) for t in tiers], textposition="outside")
         fig.add_bar(x=tiers, y=[ts.loc[t, "Observed reorder rate"] for t in tiers], name="Observed reorder rate", marker_color=POS,
                     text=[pct(ts.loc[t, "Observed reorder rate"]) for t in tiers], textposition="outside")
         style_fig(fig, "Calibration by risk tier — predicted vs observed", xt="Risk tier", yt="Reorder rate (%)", height=350, legend_title="Series")
         fig.update_layout(barmode="group"); fig.update_yaxes(tickformat=".0%", range=[0, 1.15])
+        fig.update_xaxes(tickmode="array", tickvals=tiers, ticktext=[f"{TIER_GLYPH[t_]} {t_}" for t_ in tiers])
         show(fig, "rt_tierbar")
     with c2:
         sc = d[d.reorder_prob_oof.notna()]
         fig = go.Figure()
-        for y, colr, nm in [(1, POS, "Actually reordered"), (0, RISK, "Actually churned")]:
-            fig.add_histogram(x=sc[sc.reordered == y].reorder_prob_oof, name=nm, marker_color=colr, opacity=.7, xbins=dict(start=0, end=1, size=0.1),
+        for y, colr, nm, pat in [(1, POS, "Actually reordered", ""), (0, RISK, "Actually churned (hatched)", "/")]:
+            fig.add_histogram(x=sc[sc.reordered == y].reorder_prob_oof, name=nm, marker_color=colr, opacity=.8, xbins=dict(start=0, end=1, size=0.1),
+                              marker_pattern=dict(shape=pat, fgcolor=BG, size=7, solidity=0.25, fillmode="overlay"),
                               texttemplate="%{y}", textposition="outside", textfont=dict(color=TEXT, size=10))
         for t in [0.25, 0.5, 0.75]:
             fig.add_vline(x=t, line_dash="dot", line_color=MUTED)
@@ -976,7 +1251,6 @@ def page_retention():
         fig.update_layout(barmode="group")
         show(fig, "rt_thr")
     with c2:
-        st.write("")
         note("Raising the at-risk cut-off catches more churners at the cost of more offers to loyal diners. A probability cut-off alone ignores "
              "how much each diner is worth — the <b>Retention Economics</b> page converts this trade-off into AED and finds the profit-maximising "
              "targeting rule. These figures use out-of-fold scores.", "gold")
@@ -1004,34 +1278,41 @@ def render_scoring(profile, show_actual=None):
     name, reorder, prob, items = analyse(profile)
     tier, action = risk_tier(prob)
     tcol = TIER_COLORS.get(tier, STEEL)
-    c = st.columns([1.05, 1.15, 1.2])
     strat = B["seg_strategy"].get(name, {}) if B else {}
-    c[0].markdown(f'<div class="kpi" style="border-top:3px solid {SC.get(name, STEEL)}"><div class="kpi-label">Diner segment</div>'
-                  f'<div class="kpi-value sm" style="color:{SC.get(name, TEXT)}">{name}</div>'
-                  f'<div class="kpi-sub">{strat.get("who", "")}</div></div>', unsafe_allow_html=True)
-    c[1].markdown(f'<div class="kpi"><div class="kpi-label">Will reorder?</div>'
-                  f'<div style="display:flex;align-items:baseline;gap:14px;margin-top:6px"><span class="bigprob" style="color:{tcol}">{prob * 100:.0f}%</span>'
-                  f'<span style="font-size:1.05rem;font-weight:600;color:{POS if reorder else RISK}">{"Yes — likely to reorder" if reorder else "At risk of churning"}</span></div>'
-                  f'<div class="kpi-sub">Predicted reorder probability (0.5 cut-off for Yes / At-risk)</div></div>', unsafe_allow_html=True)
-    c[2].markdown(f'<div class="kpi" style="border-left:3px solid {tcol}"><div class="kpi-label">Risk category · Retention recommendation</div>'
-                  f'<div class="kpi-value sm" style="color:{tcol}">{tier}</div><div class="kpi-sub" style="color:{TEXT}">{action}</div></div>',
-                  unsafe_allow_html=True)
+    sc_ = SC.get(name, SLATE)
+    pred_acc = TEAL if reorder else CORAL
+    pred_txt = "Yes — likely to reorder" if reorder else "At risk of churning"
+    st.markdown(f"""<div class="qf-intel">
+      <div class="z" style="--c:{sc_}"><div class="z-tag">01 · Diner segment</div>
+        <div class="z-seg"><span aria-hidden="true">{SEG_GLYPH.get(name, "●")}</span>{name}</div>
+        <div class="z-sub">{strat.get("who", "")}</div></div>
+      <div class="z main"><div class="z-tag">02 · Will reorder? — predicted reorder probability</div>
+        <div class="z-prob"><span class="bigprob">{prob * 100:.0f}%</span>
+          <span class="qf-pill" style="--acc:{pred_acc}">{icon("check" if reorder else "alert", 14)}{pred_txt}</span></div>
+        <div class="qf-track" role="img" aria-label="Reorder probability {prob * 100:.0f}% on a 0 to 100% scale">
+          <span class="m" style="left:{prob * 100:.2f}%"></span></div>
+        <div class="qf-ticks"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+        <div class="z-sub">Predicted reorder probability (0.5 cut-off for Yes / At-risk)</div></div>
+      <div class="z" style="--c:{tcol}"><div class="z-tag">03 · Risk category · Retention recommendation</div>
+        <div class="z-tier"><span aria-hidden="true">{TIER_GLYPH.get(tier, "")}</span>{tier}</div>
+        <div class="z-act">{icon("trend", 15)}<span>{action}</span></div></div>
+    </div>""", unsafe_allow_html=True)
     if show_actual is not None:
         act, oof = show_actual
         note(f"<b>Actual outcome for this diner:</b> {'reordered' if act == 1 else 'did not reorder'}. "
              f"Out-of-fold probability (from a model that never saw this diner): {pct(oof) if pd.notna(oof) else 'not scored (invalid age)'}. "
-             "The live score above uses the final model, which was trained on 80% of diners and may include this one.", "")
+             f"The live score above uses the final model, which was trained on the {B['meta']['n_train']:,} training observations "
+             f"(80% of the {B['meta']['n_model_rows']:,} adult diners) and may include this one.", "")
 
     ext = extrapolation(profile)
     atyp, _ = atypical_for_segment(profile)
     if ext:
-        note("<b>Extrapolation warning:</b> outside the range the models were trained on — " + "; ".join(ext) +
+        note("<b>Observed adult reference-range warning:</b> outside the observed adult classifier range — " + "; ".join(ext) +
              ". Treat the score as indicative only.", "caution")
     elif atyp:
         note(f"<b>Atypical profile:</b> further from the {name} centre than 95% of real diners in that segment. "
              "Segment assignment and score are less reliable.", "caution")
 
-    st.write("")
     left, right = st.columns([1, 1.1])
     with left:
         section("Recommended items", desc="<b>Segment-based</b>: the most-ordered items of this diner's segment — not personalised to the individual's order history.")
@@ -1039,7 +1320,7 @@ def render_scoring(profile, show_actual=None):
         chips = ""
         for it in items:
             s = (f" · in {pct(share.loc[pretty(it), name])} of baskets" if share is not None and pretty(it) in share.index else "")
-            chips += f'<span class="chip">{pretty(it)}<span style="color:{MUTED}">{s}</span></span>'
+            chips += f'<span class="chip" style="--c:{SC.get(name, CYAN)}">{pretty(it)}<span style="color:{MUTED}">{s}</span></span>'
         st.markdown(chips or "—", unsafe_allow_html=True)
         if B:
             opp = B["basket_opportunity"]
@@ -1059,7 +1340,7 @@ def render_scoring(profile, show_actual=None):
         section("Customer economics", desc="Estimated from the profile; total spend in the data ≈ one month of spend.")
         ms = profile["orders_per_month"] * profile["avg_order_value"]
         seg_avg = B["seg_profile"].loc[name, "Est. monthly spend (AED)"] if B else None
-        cc = st.columns(3)
+        cc = st.container(key="qf_mini_kpis").columns(3)
         kpi(cc[0], "Monthly", aed(ms), f"Est. spend · segment avg {aed(seg_avg)}" if seg_avg else "Est. spend", small=True)
         kpi(cc[1], "Risk-weighted", aed(ms * prob), "Spend × P(reorder)", small=True)
         kpi(cc[2], "At risk", aed(ms * (1 - prob)), "Spend × (1 − P)", "risk" if prob < .5 else "", small=True)
@@ -1074,8 +1355,9 @@ def render_scoring(profile, show_actual=None):
                                    hovertemplate="%{y}<br>%{x:+.2f} log-odds vs an average diner<extra></extra>"))
             fig.add_vline(x=0, line_color=MUTED)
             lim = float(cs.abs().max()) * 1.45 + 0.1
-            style_fig(fig, None, xt="Log-odds vs average diner (red = churn, green = reorder)",
-                      yt="Input (this diner's value)", height=320, legend=False)
+            style_fig(fig, None, xt="Log-odds vs average diner<br>(red = churn · green = reorder)",
+                      yt="Input (this diner's value)", height=340, legend=False)
+            fig.update_layout(margin=dict(b=30))
             fig.update_xaxes(range=[-lim, lim])
             show(fig, f"contrib_{name}_{prob:.4f}")
             up, down = contrib.idxmax(), contrib.idxmin()
@@ -1155,18 +1437,21 @@ def page_economics():
     c1, c2 = st.columns([1.35, 1])
     with c1:
         fig = go.Figure()
-        fig.add_scatter(x=curve.threshold, y=curve.margin, mode="lines+markers", name="Expected margin recovered", line=dict(color=POS))
-        fig.add_scatter(x=curve.threshold, y=curve.cost, mode="lines+markers", name="Campaign cost", line=dict(color=RISK))
-        fig.add_scatter(x=curve.threshold, y=curve.net, mode="lines+markers", name="Net value (margin − cost)", line=dict(color=GOLD, width=3),
+        fig.add_scatter(x=curve.threshold, y=curve.margin, mode="lines+markers", name="Expected margin recovered", line=dict(color=POS),
+                        marker=dict(symbol="circle"))
+        fig.add_scatter(x=curve.threshold, y=curve.cost, mode="lines+markers", name="Campaign cost", line=dict(color=RISK, dash="dash"),
+                        marker=dict(symbol="square"))
+        fig.add_scatter(x=curve.threshold, y=curve.net, mode="lines+markers", name="Net value (margin − cost)", line=dict(color=BLUE, width=3),
+                        marker=dict(symbol="diamond"),
                         hovertemplate="Cut-off P < %{x:.2f}<br>Net value AED %{y:,.0f}<extra></extra>")
-        fig.add_hline(y=ev_res["net"], line_dash="dash", line_color=STEEL)
+        fig.add_hline(y=ev_res["net"], line_dash="dash", line_color=VIOLET)
         fig.add_annotation(x=0.98, xref="paper", y=ev_res["net"], text=f"Expected-value ranking: {aed(ev_res['net'])} ({ev_res['n']} diners)",
-                           showarrow=False, xanchor="right", yshift=12, font=dict(color=STEEL, size=11), bgcolor="rgba(10,19,36,0.85)")
+                           showarrow=False, xanchor="right", yshift=12, font=dict(color=VIOLET, size=11), bgcolor="rgba(16,26,45,0.9)")
         fig.add_hline(y=0, line_color=MUTED)
-        fig.add_scatter(x=[best.threshold], y=[best.net], mode="markers", marker=dict(size=13, color=GOLD, line=dict(color=TEXT, width=1)),
+        fig.add_scatter(x=[best.threshold], y=[best.net], mode="markers", marker=dict(size=13, color=AMBER, line=dict(color=TEXT, width=1)),
                         name="Best probability cut-off")
         fig.add_annotation(x=best.threshold, y=best.net, text=f"Best cut-off P < {best.threshold:.2f}<br>{aed(best.net)} · {int(best.n)} diners",
-                           showarrow=True, arrowcolor=GOLD, ax=70, ay=60, font=dict(color=GOLD, size=11), bgcolor="rgba(10,19,36,0.85)")
+                           showarrow=True, arrowcolor=AMBER, ax=70, ay=60, font=dict(color=AMBER, size=11), bgcolor="rgba(16,26,45,0.9)")
         style_fig(fig, "Campaign value by probability cut-off vs expected-value ranking", xt="Target diners with predicted P(reorder) below …",
                   yt="AED (one campaign)", height=420, legend_title="Series")
         fig.update_xaxes(tickformat=".0%"); fig.update_yaxes(tickformat=",.0f")
@@ -1196,8 +1481,10 @@ def page_economics():
             rows.append({"s": sr, "ev_net": float(ev[ev > 0].sum()), "all_net": float(ev[d.reorder_prob_oof < 0.5].sum())})
         sens = pd.DataFrame(rows)
         fig = go.Figure()
-        fig.add_scatter(x=sens.s, y=sens.ev_net, mode="lines+markers", name="Expected-value ranking", line=dict(color=GOLD, width=3))
-        fig.add_scatter(x=sens.s, y=sens.all_net, mode="lines+markers", name="Offer to every diner with P < 50%", line=dict(color=STEEL))
+        fig.add_scatter(x=sens.s, y=sens.ev_net, mode="lines+markers", name="Expected-value ranking", line=dict(color=BLUE, width=3),
+                        marker=dict(symbol="diamond"))
+        fig.add_scatter(x=sens.s, y=sens.all_net, mode="lines+markers", name="Offer to every diner with P < 50%", line=dict(color=STEEL, dash="dash"),
+                        marker=dict(symbol="circle"))
         for _, r_ in sens.iloc[::5].iterrows():                      # label every 10 percentage points of success rate
             fig.add_annotation(x=r_.s, y=r_.ev_net, text=aed(r_.ev_net), showarrow=False, yshift=14, font=dict(color=TEXT, size=10))
             fig.add_annotation(x=r_.s, y=r_.all_net, text=aed(r_.all_net), showarrow=False, yshift=-14, font=dict(color=STEEL, size=10))
@@ -1207,7 +1494,6 @@ def page_economics():
         fig.update_xaxes(tickformat=".0%"); fig.update_yaxes(tickformat=",.0f")
         show(fig, "ec_sens")
     with c2:
-        st.write("")
         gain = ev_res["net"] - best.net
         note(f"<b>Rank by expected value, not by probability.</b> With these assumptions, expected-value ranking yields {aed(ev_res['net'])} "
              f"vs {aed(best.net)} for the best single probability cut-off ({'+' if gain >= 0 else ''}{aed(gain)}). It skips low-spend diners and "
@@ -1283,10 +1569,10 @@ def page_diner():
             if choice in PRESETS:
                 set_profile("dn", PRESETS[choice])
 
-        left, right = st.columns([0.9, 2.6], gap="large")
+        left, right = st.columns([0.9, 2.6], gap="medium")
         with left:
             with st.container(border=True):
-                st.markdown('<div class="kpi-label">Diner profile</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="qf-panel-title">{icon("users", 14)}Diner profile</div>', unsafe_allow_html=True)
                 st.selectbox("Start from", opts, key="dn_preset", on_change=_apply)
                 actual = None
                 if st.session_state["dn_preset"] == "Look up an existing diner…":
@@ -1339,14 +1625,17 @@ def page_diner():
             kpi(cc[4], "Mean P(reorder)", pct(scored_.p_reorder.mean()) if len(scored_) else "—", "Scored rows only")
             show_cols = [c for c in ["diner_id", "status", "segment", "p_reorder", "will_reorder", "risk_tier", "action",
                                      "recommended_items", "outside_training_range"] if c in res.columns]
-            disp = res[show_cols].copy()
+            # on screen only: the exported CSV keeps the technical field name outside_training_range (backward compatibility)
+            disp = res[show_cols].copy().rename(columns={"outside_training_range": "Outside observed adult range"})
             disp["p_reorder"] = (disp.p_reorder * 100).round(1)
             table(disp, height=380, column_config={"p_reorder": st.column_config.ProgressColumn("P(reorder) %", min_value=0, max_value=100, format="%.1f%%")})
             if len(scored_):
                 cnt = scored_.groupby(["segment", "risk_tier"]).size().unstack(fill_value=0).reindex(columns=[t[1] for t in RISK_TIERS], fill_value=0)
                 fig = go.Figure()
                 for t in [t_[1] for t_ in RISK_TIERS]:
-                    fig.add_bar(name=t, x=list(cnt.index), y=cnt[t], marker_color=TIER_COLORS[t], text=cnt[t], textposition="inside",
+                    fig.add_bar(name=f"{TIER_GLYPH[t]} {t}", x=list(cnt.index), y=cnt[t], marker_color=TIER_COLORS[t], text=cnt[t], textposition="inside",
+                                marker_pattern=dict(shape=TIER_PATTERNS[t], fgcolor=BG, size=7, solidity=0.2, fillmode="overlay"),
+                                textfont=dict(color=BG),
                                 hovertemplate="%{x} · " + t + ": %{y} diners<extra></extra>")
                 style_fig(fig, "Scored diners by segment and risk tier", xt="Segment", yt="Number of scored diners", height=330, legend_title="Risk tier")
                 fig.update_layout(barmode="stack")
@@ -1412,13 +1701,15 @@ def page_whatif():
                      "When linked, the diner's total spend scales in proportion to frequency × order value.")
     sc = SCENARIO_LIBRARY.get(st.session_state["wi_scen"])
     if sc:
-        st.markdown(f"<div class='qb-desc'><b style='color:{GOLD}'>{st.session_state['wi_scen']}:</b> {sc[2]}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='qf-lab'><div class='qf-panel-title'>{icon('flask', 14)}Scenario lab · active template</div>"
+                    f"<div style='color:var(--text2);font-size:.9rem'><b style='color:{VIOLET}'>{st.session_state['wi_scen']}:</b> {sc[2]}</div></div>",
+                    unsafe_allow_html=True)
 
     base = PRESETS[st.session_state["wi_base"]]
-    left, right = st.columns([0.9, 2.6], gap="large")
+    left, right = st.columns([0.9, 2.6], gap="medium")
     with left:
         with st.container(border=True):
-            st.markdown('<div class="kpi-label">Scenario profile (after)</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="qf-panel-title">{icon("flask", 14)}Scenario profile (after)</div>', unsafe_allow_html=True)
             after = profile_inputs("wi", st, base, linked_base=base if st.session_state["wi_link"] else None)
             st.button("Reset to base diner", on_click=_load_base)
 
@@ -1428,23 +1719,36 @@ def page_whatif():
     t1, a1 = risk_tier(p1)
     ms0, ms1 = base["orders_per_month"] * base["avg_order_value"], after["orders_per_month"] * after["avg_order_value"]
     with right:
-        c = st.columns([1, 1, 0.9])
-        for col, lbl, s, p, t, ms in [(c[0], "Before", s0, p0, t0, ms0), (c[1], "After (scenario)", s1, p1, t1, ms1)]:
-            col.markdown(f'<div class="kpi"><div class="kpi-label">{lbl}</div>'
-                         f'<div class="bigprob" style="margin-top:6px;color:{TIER_COLORS.get(t, STEEL)}">{p * 100:.0f}%</div>'
-                         f'<div class="kpi-sub"><b style="color:{TIER_COLORS.get(t, STEEL)}">{t}</b><br>Segment: <span style="color:{SC.get(s, TEXT)}">{s}</span>'
-                         f'<br>Est. monthly spend {aed(ms)} · risk-weighted {aed(ms * p)}</div></div>', unsafe_allow_html=True)
         delta = (p1 - p0) * 100
         dc = POS if delta > 0.5 else (RISK if delta < -0.5 else MUTED)
-        c[2].markdown(f'<div class="kpi"><div class="kpi-label">Change in P(reorder)</div>'
-                      f'<div class="bigprob" style="margin-top:6px;color:{dc}">{delta:+.1f}<span style="font-size:1.2rem"> pp</span></div>'
-                      f'<div class="kpi-sub">{"Tier unchanged" if t0 == t1 else f"Tier: {t0} → {t1}"}'
-                      f'{"" if s0 == s1 else f"<br><b style=color:{CAUTION}>Segment changes: {s0} → {s1}</b>"}</div></div>', unsafe_allow_html=True)
+        cards = ""
+        for cls, tag, lbl, s, p, t, ms in [("", "Baseline", "Before", s0, p0, t0, ms0), ("scn", "Scenario", "After (scenario)", s1, p1, t1, ms1)]:
+            tc = TIER_COLORS.get(t, STEEL)
+            cards += (f'<div class="qf-cmp {cls}"><div class="c-tag">{tag} · {lbl}</div>'
+                      f'<div class="bigprob" style="margin-top:6px">{p * 100:.0f}%</div>'
+                      f'<div class="k-sub" style="margin-top:6px;font-size:.8rem;color:var(--muted);line-height:1.45">'
+                      f'<b style="color:{TEXT}"><span style="color:{tc}">{TIER_GLYPH.get(t, "")}</span> {t}</b><br>Segment: <span style="color:{SC.get(s, SLATE)}">{SEG_GLYPH.get(s, "")}</span> <span style="color:{TEXT}">{s}</span>'
+                      f'<br>Est. monthly spend {aed(ms)} · risk-weighted {aed(ms * p)}</div></div>')
+        seg_chg = "" if s0 == s1 else f"<br><b style='color:{CAUTION}'>Segment changes: {s0} → {s1}</b>"
+        cards += (f'<div class="qf-cmp" style="border-color:color-mix(in srgb,{dc} 40%,transparent)">'
+                  f'<div class="c-tag" title="Percentage points: the arithmetic difference between two probabilities — not a percentage change.">'
+                  f'Change in P(reorder) · percentage points</div>'
+                  f'<div class="qf-delta" style="margin-top:8px;color:{dc}">{delta:+.1f}<small>pp</small></div>'
+                  f'<div style="margin-top:8px;font-size:.8rem;color:var(--muted);line-height:1.45">'
+                  f'{"Tier unchanged" if t0 == t1 else f"Tier: {t0} → {t1}"}{seg_chg}</div></div>')
+        st.markdown(f'<div class="qf-cmpgrid">{cards}</div>'
+                    f'<div class="qf-track" role="img" aria-label="Reorder probability before {p0 * 100:.0f}% and after {p1 * 100:.0f}%">'
+                    f'<span class="m before" style="left:{p0 * 100:.2f}%" title="Before"></span><span class="m after" style="left:{p1 * 100:.2f}%" title="After"></span></div>'
+                    f'<div class="qf-ticks"><span>0%</span><span>25% · high churn risk below</span><span>50%</span><span>75% · high retention above</span><span>100%</span></div>'
+                    f'<div style="font-size:.74rem;color:var(--faint);margin:.2rem 0 .3rem">Grey marker = before · violet marker = after, on the same probability scale.</div>',
+                    unsafe_allow_html=True)
 
         changed = [f for f in CLF_FEATURES if abs(after[f] - base[f]) > 1e-9]
         if changed:
-            st.markdown("<div class='qb-desc' style='margin-top:.8rem'>Changed inputs: " + " · ".join(
-                f"<b>{LABELS[f]}</b> {num(base[f])} → {num(after[f])}" for f in changed) + "</div>", unsafe_allow_html=True)
+            rows_ = "".join(f"<tr><td class='k'>{LABELS[f]}</td><td>{num(base[f])}</td><td>{num(after[f])}</td>"
+                            f"<td>{'▲' if after[f] > base[f] else '▼'} {num(abs(after[f] - base[f]))}</td></tr>" for f in changed)
+            st.markdown(f"<div class='qb-desc' style='margin:.6rem 0 .1rem'>Changed inputs:</div><table class='qf-io'><thead><tr><th>Input</th><th>Baseline</th>"
+                        f"<th>Scenario</th><th>Change (input units)</th></tr></thead><tbody>{rows_}</tbody></table>", unsafe_allow_html=True)
         else:
             st.markdown("<div class='qb-desc' style='margin-top:.8rem'>No inputs changed yet — adjust the scenario sliders.</div>", unsafe_allow_html=True)
 
@@ -1457,7 +1761,7 @@ def page_whatif():
                 note(f"<b>Beyond observed {s0} behaviour:</b> " + "; ".join(out_seg) + ". The model is extrapolating from other segments' "
                      "behaviour, so treat the change as an upper bound, not a forecast.", "caution")
         if warns:
-            note("<b>Outside the training data:</b> " + "; ".join(warns) + ".", "risk")
+            note("<b>Outside the observed adult range:</b> " + "; ".join(warns) + ".", "risk")
         if s1 != s0 and i1 != i0:
             st.markdown(f"<div class='qb-desc'>Recommended items shift with the segment: {', '.join(pretty(i) for i in i0)} → "
                         f"<b>{', '.join(pretty(i) for i in i1)}</b></div>", unsafe_allow_html=True)
@@ -1480,17 +1784,17 @@ def page_whatif():
         fig = go.Figure()
         if B:
             dseg = B["diners"][B["diners"].segment == s1]
-            fig.add_vrect(x0=dseg[feat].min(), x1=dseg[feat].max(), fillcolor=SC.get(s1, STEEL), opacity=0.10, line_width=0,
+            fig.add_vrect(x0=dseg[feat].min(), x1=dseg[feat].max(), fillcolor=SLATE, opacity=0.12, line_width=0,
                           annotation_text=f"Observed {s1} range", annotation_position="top left", annotation_font_color=MUTED)
         for y_, colr, lbl in [(0.25, RISK, "25% · high churn risk below"), (0.5, CAUTION, "50% · Yes / At-risk"), (0.75, POS, "75% · high retention above")]:
             fig.add_hline(y=y_, line_dash="dot", line_color=colr, opacity=.6, annotation_text=lbl, annotation_font_color=colr,
                           annotation_position="top right", annotation_font_size=10)
-        fig.add_scatter(x=grid, y=probs, mode="lines", line=dict(color=GOLD, width=2.5), name="P(reorder) as input varies",
+        fig.add_scatter(x=grid, y=probs, mode="lines", line=dict(color=BLUE, width=2.5), name="P(reorder) as input varies",
                         hovertemplate=LABELS[feat] + " %{x:,.2f}<br>P(reorder) %{y:.0%}<extra></extra>")
-        fig.add_scatter(x=[base[feat]], y=[p0], mode="markers+text", marker=dict(size=11, color=MUTED, line=dict(color=TEXT, width=1)), name="Before",
+        fig.add_scatter(x=[base[feat]], y=[p0], mode="markers+text", marker=dict(size=11, color=SLATE, symbol="circle", line=dict(color=TEXT, width=1)), name="Before",
                         text=[f"Before: {num(base[feat])} → {pct(p0)}"], textposition="top left", textfont=dict(color=TEXT, size=11))
-        fig.add_scatter(x=[after[feat]], y=[p1], mode="markers+text", marker=dict(size=12, color=GOLD, line=dict(color=TEXT, width=1)), name="After",
-                        text=[f"After: {num(after[feat])} → {pct(p1)}"], textposition="bottom right", textfont=dict(color=GOLD, size=11))
+        fig.add_scatter(x=[after[feat]], y=[p1], mode="markers+text", marker=dict(size=12, color=VIOLET, symbol="diamond", line=dict(color=TEXT, width=1)), name="After",
+                        text=[f"After: {num(after[feat])} → {pct(p1)}"], textposition="bottom right", textfont=dict(color=VIOLET, size=11))
         style_fig(fig, f"P(reorder) vs {LABELS[feat].lower()} (other inputs at scenario values)", xt=LABELS[feat], yt="Predicted P(reorder) (%)",
                   height=360, legend_title="Series")
         fig.update_yaxes(tickformat=".0%", range=[0, 1.02])
@@ -1516,9 +1820,10 @@ def page_whatif():
             tdf = tdf.sort_values("rng")
             ylab = [f"{LABELS[f]} ({num(lv)} ↔ {num(hv)})" for f, lv, hv in zip(tdf.f, tdf.lv, tdf.hv)]
             fig = go.Figure()
-            fig.add_bar(y=ylab, x=tdf.lo, orientation="h", name="Input lowered by 1 SD", marker_color="#8FA6C8",
+            fig.add_bar(y=ylab, x=tdf.lo, orientation="h", name="Input lowered by 1 SD (hatched)", marker_color=SLATE,
+                        marker_pattern=dict(shape="/", fgcolor=BG, size=7, solidity=0.3, fillmode="overlay"),
                         text=[f"−1 SD: {v:+.1f} pp" for v in tdf.lo], textposition="outside")
-            fig.add_bar(y=ylab, x=tdf.hi, orientation="h", name="Input raised by 1 SD", marker_color="#2E5C9A",
+            fig.add_bar(y=ylab, x=tdf.hi, orientation="h", name="Input raised by 1 SD", marker_color=BLUE,
                         text=[f"+1 SD: {v:+.1f} pp" for v in tdf.hi], textposition="outside")
             fig.add_vline(x=0, line_color=TEXT)
             lim = float(max(tdf.lo.abs().max(), tdf.hi.abs().max(), 1)) * 1.7
@@ -1553,8 +1858,9 @@ def page_recommendations():
     tk = B["takeaway"]
     parts = tk.split("**")
     html = "".join(f"<b>{p}</b>" if i % 2 else p for i, p in enumerate(parts))
+    html = _re.sub(r"\*([^*\n]+)\*", r"<i>\1</i>", html)                   # notebook markdown *emphasis* → italics (text unchanged)
     html = html.replace(" <b>2.", "<br><br><b>2.").replace(" <b>3.", "<br><br><b>3.").replace(" <b>4.", "<br><br><b>4.")
-    st.markdown(f'<div class="narr">{html}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="narr"><div class="n-head">{icon("spark", 13)}Executive recommendation · from the analysis notebook</div>{html}</div>', unsafe_allow_html=True)
 
     section("Priority matrix — business value × retention risk", "Prioritisation",
             "Dividers at the diner-weighted averages (value and churn). Bubble size = monthly spend in the uncertain 25–75% band — the value retention spend can move.")
@@ -1563,17 +1869,18 @@ def page_recommendations():
         fig = go.Figure()
         vx, ry = B["value_cut"], B["risk_cut"]
         xmin, xmax = E.value.min() * .85, E.value.max() * 1.12
-        for x0, x1, y0, y1, lbl, colr in [(vx, xmax, ry, 1.05, "IMMEDIATE INTERVENTION", RISK), (vx, xmax, -.08, ry, "PROTECT & RETAIN", POS),
-                                          (xmin, vx, ry, 1.05, "SELECTIVE RETENTION", CAUTION), (xmin, vx, -.08, ry, "AUTOMATE & MAINTAIN", FAINT)]:
-            fig.add_shape(type="rect", x0=x0, x1=x1, y0=y0, y1=y1, fillcolor=colr, opacity=.05, line_width=0)
+        # One chart, one colour system: bubbles carry segment colour + shape, so the quadrants stay neutral and are named in text
+        for x0, x1, y0, y1, lbl, shade in [(vx, xmax, ry, 1.05, "IMMEDIATE INTERVENTION", .07), (vx, xmax, -.08, ry, "PROTECT & RETAIN", .03),
+                                           (xmin, vx, ry, 1.05, "SELECTIVE RETENTION", .03), (xmin, vx, -.08, ry, "AUTOMATE & MAINTAIN", .0)]:
+            fig.add_shape(type="rect", x0=x0, x1=x1, y0=y0, y1=y1, fillcolor=SLATE, opacity=shade, line_width=0)
             fig.add_annotation(x=x1 if x0 == vx else x0, y=y1 - .03 if y1 > .9 else y0 + .03, text=lbl, showarrow=False,
-                               xanchor="right" if x0 == vx else "left", font=dict(size=10, color=colr))
+                               xanchor="right" if x0 == vx else "left", font=dict(size=10.5, color=MUTED))
         for s, r in E.iterrows():
             size = max(14, np.sqrt(max(r.movable_value, 1)) / 4.5)
             fig.add_scatter(x=[r.value], y=[r.churn], mode="markers+text", name=s,
                             text=[f"<b>{s}</b><br>{aed(r.value)}/diner · {pct(r.churn)} churn<br>movable {aed(r.movable_value)} · #{int(r.intervention_rank)}"],
                             textposition="bottom center" if r.churn > .6 else "top center",
-                            textfont=dict(color=SC[s], size=11), marker=dict(size=size, color=SC[s], opacity=.85, line=dict(color=BG, width=1)),
+                            textfont=dict(color=TEXT, size=11), marker=dict(size=size, color=SC[s], symbol=SSYM[s], opacity=.85, line=dict(color=BG, width=1)),
                             hovertemplate=(f"<b>{s}</b><br>Value {aed(r.value)}/diner/month<br>Churn {pct(r.churn)}<br>"
                                            f"Movable value {aed(r.movable_value)} ({int(r.movable_diners)} diners)<br>"
                                            f"Gross spend at risk {aed(r.revenue_at_risk)}<extra></extra>"))
@@ -1637,7 +1944,10 @@ def page_governance():
     if B:
         kpi(c[1], "Data-quality status", B["dq"]["status"].title(), f"{B['under18']['n']} under-18 diners out of classifier scope; all else PASS", "caution", small=True)
         kpi(c[2], "Last model training", B["meta"]["trained_at"], f"scikit-learn {B['meta']['sklearn']} · seed {B['meta']['seed']}", small=True)
-        kpi(c[3], "Training data", f"{B['meta']['n_diners']} diners", f"{B['meta']['n_model_rows']} in classifier · {B['meta']['n_baskets']:,} baskets")
+        mt = B["meta"]                    # population counts written by the notebook; the four labels below are terminology only
+        kpi(c[3], "Analysis population", f"{mt['n_diners']:,}",
+            f"{mt['n_diners']:,} diners · {mt['n_model_rows']:,} adult classifier population · {mt['n_train']:,} training observations · "
+            f"{mt['n_test']:,} test observations", icon_name="users")
 
     if B:
         u = B["under18"]
@@ -1687,12 +1997,13 @@ def page_governance():
         ("Reorder model", meta["model_type"]),
         ("Train / test split", f"{meta['split']} → {meta['n_train']} train · {meta['n_test']} test"),
         ("Baseline", f"Majority class (always 'reorder') = {pct(m['Baseline accuracy'], 1)}"),
-        ("Test performance", f"Accuracy {pct(m['Accuracy'], 1)} · ROC-AUC {m['ROC-AUC']:.3f} · F1 {m['F1 (reorder)']:.3f} · Brier {m['Brier score']:.3f}"),
+        ("Held-out test performance (independent)", f"Accuracy {pct(m['Accuracy'], 1)} · ROC-AUC {m['ROC-AUC']:.3f} · F1 {m['F1 (reorder)']:.3f} · Brier {m['Brier score']:.3f}"),
         ("Population scores", "Out-of-fold (5-fold CV) probabilities for KPIs, tiers and the watch-list"),
         ("Scope / exclusions", f"18+ policy: {B['under18']['n']} under-18 diners (ages 9–17) excluded from classifier training, evaluation, scoring and the "
                                "age input; retained for segmentation and baskets"),
-        ("Robustness", f"Repeated 5-fold CV (50 fits): accuracy {pct(B['validation']['repeated_cv']['acc_mean'], 1)} ± "
-                       f"{pct(B['validation']['repeated_cv']['acc_sd'], 1)}, AUC {B['validation']['repeated_cv']['auc_mean']:.3f}; "
+        ("Post-selection stability", f"Repeated 5-fold CV (50 fits, all adults incl. test diners; not independent, no nested CV): accuracy "
+                       f"{pct(B['validation']['repeated_cv']['acc_mean'], 1)} ± {pct(B['validation']['repeated_cv']['acc_sd'], 1)} vs "
+                       f"{pct(B['validation']['repeated_cv']['baseline'], 1)} baseline, AUC {B['validation']['repeated_cv']['auc_mean']:.3f}; "
                        f"cluster stability ARI {B['validation']['cluster_stability']['boot_mean']:.3f} (200 bootstrap re-fits)"),
         ("Association rules", f"Apriori · min support {pct(meta['min_support_overall'])} overall, {pct(meta['min_support_segment'])} per segment · lift > 1"),
         ("Known limitations", "Multicollinear inputs (VIF > 5); total spend ≈ one month of spend; orders.csv is a basket sample; associations are not causal"),
@@ -1703,24 +2014,38 @@ def page_governance():
     tr = B["train_ranges"]
     fc = pd.DataFrame({"Feature": CLF_FEATURES, "Business meaning": [LABELS[f] for f in CLF_FEATURES],
                        "Clustering (5)": ["✓" if f in FEATURES else "" for f in CLF_FEATURES], "Classifier (7)": ["✓"] * 7,
-                       "Training range": [f"{num(tr[f][0])} – {num(tr[f][1])}" for f in CLF_FEATURES],
+                       "Observed adult classifier range": [f"{num(tr[f][0])} – {num(tr[f][1])}" for f in CLF_FEATURES],
                        "Dashboard input range": [f"{INPUT_SPEC[f][0]:,} – {INPUT_SPEC[f][1]:,}" for f in CLF_FEATURES]})
     table(fc)
-    note("Inputs outside the training range trigger an extrapolation warning on the scoring and what-if pages. "
-         "The dashboard always shows raw business units; only the fitted pipelines see scaled values.")
+    note(f"The observed adult classifier range is calculated using all {B['meta']['n_model_rows']:,} adult classifier-eligible diners, "
+         f"including both the {B['meta']['n_train']:,} training observations and the {B['meta']['n_test']:,} held-out test observations. "
+         "It represents an observed population reference range, not a training-only range. Inputs outside it trigger an observed "
+         "adult reference-range warning on the scoring and what-if pages. The dashboard always shows raw business units; only the "
+         "fitted pipelines see scaled values.")
 
-    section("Model comparison (selection on cross-validation)", "Model selection")
+    section("Model comparison — selection on training-set cross-validation only", "Model selection",
+            "Every score is the mean over 5 held-out folds of the 368-diner training set. The 92-diner test set played no part in choosing "
+            "the model; it was used once, afterwards, to evaluate the selected model (see the model card above and Retention &amp; Churn).")
     mc = B["model_comparison"]
-    table(pd.DataFrame({"Model": mc.Model, "CV accuracy": mc["CV accuracy"].map(lambda v: pct(v, 1)),
-                        "CV ROC-AUC": mc["CV ROC-AUC"].map(lambda v: f"{v:.3f}"), "Test accuracy": mc["Test accuracy"].map(lambda v: pct(v, 1)),
-                        "Test ROC-AUC": mc["Test ROC-AUC"].map(lambda v: f"{v:.3f}"),
-                        "Test Brier ↓": mc["Test Brier (lower = better calibrated)"].map(lambda v: f"{v:.3f}"),
+    sel = mc.iloc[0]["Model"]                      # the notebook ranks candidates by CV ROC-AUC and asserts the choice
+    table(pd.DataFrame({"Model": mc.Model, "Selected": ["✓ selected" if x == sel else "" for x in mc.Model],
+                        "CV accuracy": [f"{pct(a, 1)} ± {pct(b, 1)}" for a, b in zip(mc["CV accuracy"], mc["CV accuracy (sd)"])],
+                        "CV precision": mc["CV precision (reorder)"].map(lambda v: f"{v:.3f}"),
+                        "CV recall": mc["CV recall (reorder)"].map(lambda v: f"{v:.3f}"),
+                        "CV F1": mc["CV F1 (reorder)"].map(lambda v: f"{v:.3f}"),
+                        "CV ROC-AUC ↑": mc["CV ROC-AUC"].map(lambda v: f"{v:.3f}"),
+                        "CV Brier ↓": mc["CV Brier (lower = better calibrated)"].map(lambda v: f"{v:.3f}"),
                         "Interpretable": mc.Interpretable.map(lambda v: "Yes" if v else "No")}))
+    st.caption("Selection rule (fixed before any test result was computed): highest CV ROC-AUC, confirmed by the lowest CV Brier score "
+               "(best-calibrated probabilities for the risk tiers), with interpretability preferred. Final held-out test metrics are reported "
+               "for the selected model only.")
     fig = go.Figure()
-    for col_, colr, nm in [("CV accuracy", STEEL, "CV accuracy"), ("CV ROC-AUC", GOLD, "CV ROC-AUC")]:
-        fig.add_bar(x=mc.Model, y=mc[col_], name=nm, marker_color=colr, text=[pct(v, 1) for v in mc[col_]], textposition="outside")
-    fig.add_hline(y=m["Baseline accuracy"], line_dash="dash", line_color=CAUTION, annotation_text=f"majority baseline {pct(m['Baseline accuracy'], 1)}",
-                  annotation_font_color=CAUTION, annotation_position="bottom right")
+    for col_, colr, nm, pat in [("CV accuracy", STEEL, "CV accuracy (hatched)", "/"), ("CV ROC-AUC", VIOLET, "CV ROC-AUC", "")]:
+        fig.add_bar(x=mc.Model, y=mc[col_], name=nm, marker_color=colr, text=[pct(v, 1) for v in mc[col_]], textposition="outside",
+                    marker_pattern=dict(shape=pat, fgcolor=BG, size=7, solidity=0.3, fillmode="overlay"))
+    rb = B["meta"].get("train_majority_share", B["validation"]["repeated_cv"]["baseline"])   # matched baseline: training set
+    fig.add_hline(y=rb, line_dash="dash", line_color=CAUTION, annotation_text=f"majority-class share (training set) {pct(rb, 1)}",
+                  annotation_font_color=CAUTION, annotation_position="bottom right", annotation_bgcolor="rgba(16,26,45,0.9)")
     style_fig(fig, "Candidate models — 5-fold cross-validation on the training set", xt="Model", yt="Score (%)", height=340, legend_title="Metric")
     fig.update_layout(barmode="group"); fig.update_yaxes(tickformat=".0%", range=[0.5, 1.05])
     show(fig, "gv_models")
@@ -1759,19 +2084,22 @@ PAGES = {
     "Governance & Data Quality": page_governance,
 }
 with st.sidebar:
-    st.markdown(f'<div class="qb-brand" style="margin-top:.3rem">QuickBite</div>'
-                f'<div style="font-size:1.15rem;font-weight:600;color:{TEXT};margin-bottom:1rem">Diner Intelligence</div>',
-                unsafe_allow_html=True)
+    st.markdown(f'<div class="qf-side-brand">{brand_mark(34)}<div><div class="t1">QuickBite</div>'
+                f'<div class="t2">QuantFin AI Studio</div></div></div><div class="qf-side-label">Navigate</div>', unsafe_allow_html=True)
     page = st.radio("Navigate", list(PAGES), key="nav", label_visibility="collapsed")
-    st.markdown("<hr>", unsafe_allow_html=True)
     if B:
-        st.markdown(f"<div style='color:{MUTED};font-size:.78rem;line-height:1.6'>"
-                    f"Models trained {B['meta']['trained_at']}<br>{B['meta']['n_diners']} diners · K = {B['meta']['K']} · "
-                    f"Logistic regression<br>Accuracy {pct(B['metrics']['Accuracy'])} · AUC {B['metrics']['ROC-AUC']:.2f}<br>"
-                    f"Data quality: {B['dq']['status'].title()}</div>", unsafe_allow_html=True)
+        dq_ = B["dq"]["status"].title()
+        dq_c = AMBER if "REVIEW" in B["dq"]["status"].upper() else TEAL
+        rows_ = [("Models trained", B["meta"]["trained_at"], SLATE), ("Diners", f"{B['meta']['n_diners']}", SLATE),
+                 ("Segments", f"K = {B['meta']['K']}", VIOLET), ("Model", "Logistic regression", VIOLET),
+                 ("Test accuracy", pct(B["metrics"]["Accuracy"]), VIOLET), ("Test AUC", f"{B['metrics']['ROC-AUC']:.2f}", VIOLET),
+                 ("Data quality", dq_, dq_c)]
+        st.markdown('<div class="qf-side-status"><div class="qf-side-label" style="margin:0 0 .4rem">Studio status</div>' +
+                    "".join(f'<div class="row"><span><span class="qf-dot" style="background:{c}"></span>{k}</span><b>{v}</b></div>' for k, v, c in rows_) +
+                    "</div>", unsafe_allow_html=True)
     else:
         st.caption("Analytics bundle not found — only Diner Intelligence is available.")
 
 PAGES[page]()
-st.markdown('<div class="foot">Segments, reorder model and recommendations come from the models trained in QuickBite_Analysis.ipynb '
+st.markdown(f'<div class="foot">{brand_mark(16)} QuickBite | QuantFin AI Studio · Segments, reorder model and recommendations come from the models trained in QuickBite_Analysis.ipynb '
             '(food_models.joblib). Predictions are statistical associations, not causal estimates.</div>', unsafe_allow_html=True)

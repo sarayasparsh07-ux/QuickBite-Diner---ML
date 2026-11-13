@@ -1,0 +1,134 @@
+{
+ "recomputed_training_cv": {
+  "Logistic Regression (scaled)": {
+   "accuracy": 0.8477600888559792,
+   "accuracy_sd": 0.02924270842366387,
+   "precision": 0.8861804932430596,
+   "recall": 0.8511627906976743,
+   "f1": 0.8676254404927386,
+   "roc_auc": 0.9343335833958489,
+   "brier": 0.10142015886940448,
+   "interpretable": true
+  },
+  "Decision Tree (depth 4)": {
+   "accuracy": 0.8152906330988523,
+   "accuracy_sd": 0.034799640719997256,
+   "precision": 0.8498586519863116,
+   "recall": 0.8372093023255813,
+   "f1": 0.8411414998479974,
+   "roc_auc": 0.8624131032758189,
+   "brier": 0.14436395630298818,
+   "interpretable": true
+  },
+  "Random Forest (300 trees)": {
+   "accuracy": 0.8287300999629768,
+   "accuracy_sd": 0.025818666151887243,
+   "precision": 0.8706776556776556,
+   "recall": 0.8325581395348838,
+   "f1": 0.8506543927110556,
+   "roc_auc": 0.9285921480370092,
+   "brier": 0.10253249594242853,
+   "interpretable": false
+  },
+  "Gradient Boosting": {
+   "accuracy": 0.8206960385042578,
+   "accuracy_sd": 0.019564156125482096,
+   "precision": 0.8452676960607738,
+   "recall": 0.8511627906976743,
+   "f1": 0.8471758973636673,
+   "roc_auc": 0.9129182295573894,
+   "brier": 0.1290334462862451,
+   "interpretable": false
+  }
+ },
+ "expected_display": {
+  "Logistic Regression (scaled)": {
+   "Model": "Logistic Regression (scaled)",
+   "Selected": "✓ selected",
+   "CV accuracy": "84.8% ± 2.9%",
+   "CV precision": "0.886",
+   "CV recall": "0.851",
+   "CV F1": "0.868",
+   "CV ROC-AUC ↑": "0.934",
+   "CV Brier ↓": "0.101",
+   "Interpretable": "Yes"
+  },
+  "Random Forest (300 trees)": {
+   "Model": "Random Forest (300 trees)",
+   "Selected": "",
+   "CV accuracy": "82.9% ± 2.6%",
+   "CV precision": "0.871",
+   "CV recall": "0.833",
+   "CV F1": "0.851",
+   "CV ROC-AUC ↑": "0.929",
+   "CV Brier ↓": "0.103",
+   "Interpretable": "No"
+  },
+  "Gradient Boosting": {
+   "Model": "Gradient Boosting",
+   "Selected": "",
+   "CV accuracy": "82.1% ± 2.0%",
+   "CV precision": "0.845",
+   "CV recall": "0.851",
+   "CV F1": "0.847",
+   "CV ROC-AUC ↑": "0.913",
+   "CV Brier ↓": "0.129",
+   "Interpretable": "No"
+  },
+  "Decision Tree (depth 4)": {
+   "Model": "Decision Tree (depth 4)",
+   "Selected": "",
+   "CV accuracy": "81.5% ± 3.5%",
+   "CV precision": "0.850",
+   "CV recall": "0.837",
+   "CV F1": "0.841",
+   "CV ROC-AUC ↑": "0.862",
+   "CV Brier ↓": "0.144",
+   "Interpretable": "Yes"
+  }
+ },
+ "display_columns": [
+  "Model",
+  "Selected",
+  "CV accuracy",
+  "CV precision",
+  "CV recall",
+  "CV F1",
+  "CV ROC-AUC ↑",
+  "CV Brier ↓",
+  "Interpretable"
+ ],
+ "bundle_columns": [
+  "Model",
+  "CV accuracy",
+  "CV accuracy (sd)",
+  "CV precision (reorder)",
+  "CV recall (reorder)",
+  "CV F1 (reorder)",
+  "CV ROC-AUC",
+  "CV Brier (lower = better calibrated)",
+  "Interpretable"
+ ],
+ "bundle_defects": [],
+ "display_defects": [],
+ "candidates_checked": [
+  "Decision Tree (depth 4)",
+  "Gradient Boosting",
+  "Logistic Regression (scaled)",
+  "Random Forest (300 trees)"
+ ],
+ "table_matches_recomputation": true,
+ "mismatches": [],
+ "no_test_columns_in_selection_table": true,
+ "rule_highest_cv_roc_auc": "Logistic Regression (scaled)",
+ "rule_lowest_cv_brier": "Logistic Regression (scaled)",
+ "selected_in_bundle": "Logistic Regression (scaled)",
+ "selected_model_type_in_meta": "Logistic Regression (StandardScaler → LogisticRegression, L2, C = 1.0)",
+ "selection_rule_satisfied": true,
+ "train_majority_share_recomputed": 0.5842391304347826,
+ "train_majority_share_in_bundle": 0.5842391304347826,
+ "train_majority_share_matches": true,
+ "n_train": 368,
+ "display_checked": true,
+ "PASS": true
+}

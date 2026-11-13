@@ -1,0 +1,75 @@
+{
+ "recorded": "5 Nov 2026, after the DQ-05 quantity correction (notebook source corrected and re-executed; bundle and notebook references updated; app.py, data and model artifact unchanged)",
+ "algorithms": [
+  "md5",
+  "sha256"
+ ],
+ "note": "Mechanism A of the checksum inventory. byte_identical: each file must exist and equal BOTH digests below, at the start and at the end of every validation run, otherwise the run FAILS. content_checked: each file must exist and must not change during a run (FAIL otherwise); a difference from the digests below is reported, not failed, because a notebook re-execution rewrites both files (new training timestamp, regenerated outputs). The bundle's analytical content is then compared value by value by the strict comparison, and the model output is covered by food_models.joblib being byte-identical. Files not listed here are not covered by this checksum assertion.",
+ "history": {
+  "app.py": {
+   "md5_before_final_polish": "cb5fb20f7ff05ff6385236281ac8df93",
+   "md5_after_final_polish": "75a40a85ca985a3b84d2f08156839217",
+   "reason": "CHANGELOG 'Final Submission Polish' F1 (Governance population KPI) and 'Final Micro-Correction \u2014 Observed Adult Classifier Range Terminology' (display wording only)",
+   "md5_before_dq_correction": "dec5e977ff55da2ebd73a20941fada34",
+   "reason_dq_correction": "CHANGELOG 'Final Documentation Consistency \u2014 DQ-01 and DQ-05': runtime DQ-05 substitution removed"
+  },
+  "build/notebook_source.py": {
+   "md5_before_dq_correction": "2e0900fece1ac20a6f2f38b6a03a7c05",
+   "reason_dq_correction": "CHANGELOG 'Final Documentation Consistency \u2014 DQ-01 and DQ-05': source corrected; notebook re-executed (bundle: DQ-01/DQ-05 rows + training timestamp only)",
+   "md5_before_dq05_quantity_correction": "bdf63fab9798f23347059e17c72902f7",
+   "reason_dq05_quantity_correction": "CHANGELOG 'Final Refinement \u2014 DQ-05 Input-Range Count': quantity derived at the source; notebook re-executed (bundle: DQ-05 row + training timestamp only)"
+  },
+  "dashboard_bundle.joblib": {
+   "md5_before_dq_correction": "abf4ea91f1ec59142a92b43f5ce1f5ad",
+   "reason_dq_correction": "CHANGELOG 'Final Documentation Consistency \u2014 DQ-01 and DQ-05': source corrected; notebook re-executed (bundle: DQ-01/DQ-05 rows + training timestamp only)",
+   "md5_before_dq05_quantity_correction": "95f6e6f9a5e39dade4f50c74950f34cb",
+   "reason_dq05_quantity_correction": "CHANGELOG 'Final Refinement \u2014 DQ-05 Input-Range Count': quantity derived at the source; notebook re-executed (bundle: DQ-05 row + training timestamp only)"
+  },
+  "QuickBite_Analysis.ipynb": {
+   "md5_before_dq_correction": "499654cb2693956c2c670db3d8e3dd63",
+   "reason_dq_correction": "CHANGELOG 'Final Documentation Consistency \u2014 DQ-01 and DQ-05': source corrected; notebook re-executed (bundle: DQ-01/DQ-05 rows + training timestamp only)",
+   "md5_before_dq05_quantity_correction": "d85c23e5d875b686bf505175263f3b51",
+   "reason_dq05_quantity_correction": "CHANGELOG 'Final Refinement \u2014 DQ-05 Input-Range Count': quantity derived at the source; notebook re-executed (bundle: DQ-05 row + training timestamp only)"
+  }
+ },
+ "byte_identical": {
+  "data/raw/diners.csv": {
+   "md5": "11ba8cfa2b2ab1499c5422cabbe80d1c",
+   "sha256": "0a05f70cc6de63ab6501b8a119a74ee6dde6ffdba8dae5ad84179e62b56acc26"
+  },
+  "data/raw/orders.csv": {
+   "md5": "776f66420a6669d62764daab11863c03",
+   "sha256": "aff2b91297d575a387159b0906fce6fb06b401a46ee2c9c575d1fa9f3bffc7d7"
+  },
+  "data/clean/diners_clean.csv": {
+   "md5": "01ee01ca7fe20d31c91a82ea0788c698",
+   "sha256": "b28dc806504f00b0cb6532f9db4745a6d8dcba1d6d7261e39a96d776107d81a0"
+  },
+  "data/clean/orders_clean.csv": {
+   "md5": "2188c9e4977acd5765e5d8ced0c8966d",
+   "sha256": "d9b1b74f3abce70c800b8acea40b6d232583c25789e34123f1a6ace59059dadd"
+  },
+  "food_models.joblib": {
+   "md5": "7b1f8a39310cc735d15cbc3f89754045",
+   "sha256": "d47477932350b79023589b4622261b1809d0ee6bc0bc3da86e3ed34dbef598c1"
+  },
+  "app.py": {
+   "md5": "e01606439b07fc2c89ef8d838701caf1",
+   "sha256": "182243a536224095b7417f4bf3089ca771ba47d77949a4474c97de3d42838212"
+  },
+  "build/notebook_source.py": {
+   "md5": "d0a5937da73fc6e2de67d0b99c4ba200",
+   "sha256": "646f60df3c22c66fc161dc15a6cad623825f57290cc7668b0257edfcd86277a1"
+  }
+ },
+ "content_checked": {
+  "dashboard_bundle.joblib": {
+   "md5": "202bb66471fea96a3e6fde3aef08e47a",
+   "sha256": "e090772ad1b4a8626216fda126068d1ae1fa14184460cdecfcadd6242d28ce0d"
+  },
+  "QuickBite_Analysis.ipynb": {
+   "md5": "67e51531c3628c6e51da7eb8e12b6dfa",
+   "sha256": "b2353a08215e604c2e4fc58e8e28aa930e4dc5cb5f1bf17faf7ae25c397b28ed"
+  }
+ }
+}
