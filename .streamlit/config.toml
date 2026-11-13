@@ -1,10 +1,43 @@
+# QuickBite | QuantFin AI Studio — native theme layer.
+# Single source of truth for colours: the approved QuantFin design tokens (see README "Visual design").
+# Every key below exists in Streamlit 1.65.0 (the pinned version). Theme settings are read at start-up only:
+# restart `streamlit run app.py` after editing this file. No external fonts: system font stack only.
 [theme]
 base = "dark"
-primaryColor = "#C9A227"
-backgroundColor = "#0A1324"
-secondaryBackgroundColor = "#111E35"
-textColor = "#E6ECF5"
-font = "sans serif"
+primaryColor = "#3A66E8"               # Primary action: buttons, slider fill, checkboxes, active tab bar (white text 4.95:1)
+backgroundColor = "#0B1020"            # Background
+secondaryBackgroundColor = "#152238"   # Primary surface: input wells and dataframe surfaces (visible against the background)
+textColor = "#F4F7FC"                  # Primary text
+borderColor = "#2B405C"                # Border
+showWidgetBorder = true
+showSidebarBorder = true
+linkColor = "#789BFF"                  # Link / focus
+linkUnderline = false
+dataframeBorderColor = "#2B405C"
+dataframeHeaderBackgroundColor = "#101A2D"
+dataframeHeaderTextColor = "#A8B6CB"
+baseRadius = "8px"
+buttonRadius = "8px"
+font = "Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+headingFont = "Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+codeFont = "ui-monospace, 'SF Mono', 'Cascadia Mono', 'Segoe UI Mono', Menlo, Consolas, monospace"
+baseFontSize = 15
+# Semantic status colours used by st.success / st.warning / st.error / st.info and metric deltas
+greenColor = "#45E3C1"                 # Positive
+redColor = "#FF7D91"                   # High risk
+yellowColor = "#FFC76B"                # Caution
+orangeColor = "#FFC76B"                # Caution (no separate orange token in the palette)
+blueColor = "#5B84FF"                  # Analytical blue
+violetColor = "#D98CF2"                # AI / ML
+grayColor = "#8A99B0"                  # Tertiary text
+# Fallback only: every dashboard chart is rendered with theme=None and the registered "quantfin" Plotly template
+chartCategoricalColors = ["#A5E4FF", "#5B84FF", "#FFC76B", "#45E3C1", "#D98CF2", "#FF7D91"]
+
+[theme.sidebar]
+backgroundColor = "#101A2D"            # Sunken surface
+secondaryBackgroundColor = "#152238"
+textColor = "#F4F7FC"
+borderColor = "#2B405C"
 
 [client]
 toolbarMode = "minimal"
